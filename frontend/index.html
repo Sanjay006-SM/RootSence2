@@ -362,7 +362,7 @@
     <script>
         if (window.lucide) lucide.createIcons();
 
-        // Dynamically generate the 36 infinity-shaped floating paths with interactive motion
+        // 60FPS Apple/Linear-Grade Dual-Directional Infinity Intelligence Flow
         function initFloatingPaths() {
             const container = document.getElementById('floating-paths-container');
             if (!container) return;
@@ -371,15 +371,32 @@
             const offsetX = 348;
             const offsetY = 158;
             
-            let svgContent = `<svg class="w-full h-full text-black infinity-breathe" viewBox="0 0 696 316" fill="none" preserveAspectRatio="xMidYMid slice"><title>Animated Infinity Background Paths</title>`;
+            let svgContent = `
+            <svg class="w-full h-full text-black infinity-breathe" viewBox="0 0 696 316" fill="none" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                    <filter id="soft-infinity-glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2.5" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+                <title>Enterprise Incident Intelligence Flow</title>
+            `;
 
             for (let i = 0; i < numPaths; i++) {
                 const scale = 140 + i * 8;
-                const width = (0.5 + i * 0.025).toFixed(2);
-                const baseOpacity = (0.05 + (i / numPaths) * 0.12).toFixed(3);
-                const flowOpacity = (0.15 + (i / numPaths) * 0.65).toFixed(3);
-                const duration = (9 + i * 0.35).toFixed(1);
-                const delay = (i * 0.15).toFixed(2);
+                const width = (0.45 + i * 0.025).toFixed(2);
+                const baseOpacity = (0.04 + (i / numPaths) * 0.10).toFixed(3);
+                
+                // Varied speeds for continuous depth and multi-frequency rhythm
+                const isEven = i % 2 === 0;
+                const duration = isEven 
+                    ? (8.5 + (i % 6) * 1.5).toFixed(1) 
+                    : (11.0 + (i % 5) * 1.8).toFixed(1);
+                const delay = (i * 0.16).toFixed(2);
+                const pulseClass = isEven ? 'pulse-forward' : 'pulse-reverse';
 
                 const d = `
                     M ${offsetX - scale} ${offsetY}
@@ -397,7 +414,7 @@
                       ${offsetX - scale} ${offsetY}
                 `.replace(/\s+/g, ' ').trim();
 
-                // Structural static path (provides clean grid definition)
+                // 1. Structural base path (keeps all 36 infinity lines crisp and visible)
                 svgContent += `
                     <path
                         d="${d}"
@@ -409,15 +426,15 @@
                     />
                 `;
 
-                // Animated glowing flow path (runs along the curve continuously)
+                // 2. Traveling glowing light pulse (moves forward & reverse along infinity curves)
                 svgContent += `
                     <path
                         d="${d}"
                         stroke="currentColor"
-                        stroke-width="${(parseFloat(width) + 0.4).toFixed(2)}"
-                        stroke-opacity="${flowOpacity}"
+                        stroke-width="${(parseFloat(width) + 0.5).toFixed(2)}"
                         fill="none"
-                        class="floating-path-line"
+                        class="${pulseClass}"
+                        filter="url(#soft-infinity-glow)"
                         style="animation-duration: ${duration}s; animation-delay: ${delay}s;"
                     />
                 `;
@@ -425,30 +442,6 @@
 
             svgContent += `</svg>`;
             container.innerHTML = svgContent;
-
-            // Subtle interactive mouse parallax tilt
-            const heroSection = document.getElementById('hero-section');
-            if (heroSection) {
-                heroSection.addEventListener('mousemove', (e) => {
-                    const rect = heroSection.getBoundingClientRect();
-                    const moveX = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-                    const moveY = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-                    
-                    const svg = container.querySelector('svg');
-                    if (svg) {
-                        svg.style.transform = `translate3d(${moveX * 12}px, ${moveY * 12}px, 0)`;
-                        svg.style.transition = 'transform 0.2s cubic-bezier(0.1, 1, 0.1, 1)';
-                    }
-                });
-
-                heroSection.addEventListener('mouseleave', () => {
-                    const svg = container.querySelector('svg');
-                    if (svg) {
-                        svg.style.transform = 'translate3d(0, 0, 0)';
-                        svg.style.transition = 'transform 0.8s ease-out';
-                    }
-                });
-            }
         }
 
         document.addEventListener('DOMContentLoaded', initFloatingPaths);

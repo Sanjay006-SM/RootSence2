@@ -271,82 +271,136 @@ textarea:focus-visible {
     color: #16a34a;
 }
 
-/* ── Floating Infinity Background Paths ── */
+/* ── Premium Apple/Linear-Grade Infinity AI Intelligence Visualization ── */
+
+/* Container Breathing Animation (Scale: 1 -> 1.02 -> 1, Duration: 12s, No Rotation) */
 .infinity-breathe {
     width: 100%;
     height: 100%;
-    animation: infinityFloat 16s ease-in-out infinite alternate;
+    animation: infinityBreathing 12s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
     transform-origin: center center;
     will-change: transform;
 }
 
-@keyframes infinityFloat {
+@keyframes infinityBreathing {
     0% {
-        transform: scale(1) rotate(0deg);
+        transform: scale(1);
     }
     50% {
-        transform: scale(1.04) rotate(1.2deg);
+        transform: scale(1.02);
     }
     100% {
-        transform: scale(0.97) rotate(-1.2deg);
+        transform: scale(1);
     }
 }
 
-.floating-path-line {
-    stroke-dasharray: 200 400;
-    stroke-dashoffset: 0;
-    animation: flowInfinity 10s infinite linear;
+/* Base Structural Infinity Paths */
+.floating-path-base {
+    transition: stroke-opacity 0.4s ease;
+}
+
+/* Forward Traveling Light Pulses */
+.pulse-forward {
+    stroke-dasharray: 140 760;
+    stroke-dashoffset: 900;
+    animation: flowForward 12s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
     will-change: stroke-dashoffset, opacity;
 }
 
-@keyframes flowInfinity {
+@keyframes flowForward {
     0% {
-        stroke-dashoffset: 1200;
-        opacity: 0.15;
+        stroke-dashoffset: 900;
+        opacity: 0;
     }
-    20% {
+    15% {
         opacity: 0.85;
+    }
+    50% {
+        opacity: 1;
+    }
+    85% {
+        opacity: 0.85;
+    }
+    100% {
+        stroke-dashoffset: -900;
+        opacity: 0;
+    }
+}
+
+/* Reverse Traveling Light Pulses (Opposite Direction) */
+.pulse-reverse {
+    stroke-dasharray: 180 820;
+    stroke-dashoffset: -1000;
+    animation: flowReverse 14s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.4));
+    will-change: stroke-dashoffset, opacity;
+}
+
+@keyframes flowReverse {
+    0% {
+        stroke-dashoffset: -1000;
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.8;
     }
     50% {
         opacity: 0.95;
     }
-    80% {
-        opacity: 0.85;
+    85% {
+        opacity: 0.8;
     }
     100% {
-        stroke-dashoffset: -1200;
-        opacity: 0.15;
+        stroke-dashoffset: 1000;
+        opacity: 0;
     }
 }
 
-.floating-path-base {
-    transition: stroke-opacity 0.3s ease;
-}
-
-/* ── Rotating Glowing Gradient Orb ── */
+/* Ambient Soft Glowing Radial Orb (No flashy colors, monochrome depth) */
 .gradient-orb-spin {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 700px;
-    height: 700px;
+    width: 750px;
+    height: 750px;
     border-radius: 9999px;
     pointer-events: none;
-    animation: spinOrb 24s linear infinite;
-    will-change: transform;
+    animation: spinOrb 28s ease-in-out infinite alternate;
+    will-change: transform, opacity;
 }
 
 @keyframes spinOrb {
     0% {
-        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
     }
     50% {
-        transform: translate(-50%, -50%) rotate(180deg) scale(1.22);
+        transform: translate(-50%, -50%) scale(1.15);
+        opacity: 0.85;
     }
     100% {
-        transform: translate(-50%, -50%) rotate(360deg) scale(1);
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
     }
 }
+
+/* Accessibility: Disable complex animations for users preferring reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .infinity-breathe,
+    .pulse-forward,
+    .pulse-reverse,
+    .gradient-orb-spin {
+        animation: none !important;
+        transform: none !important;
+    }
+    .pulse-forward,
+    .pulse-reverse {
+        stroke-dasharray: none !important;
+        opacity: 0.3 !important;
+    }
+}
+
 
 
