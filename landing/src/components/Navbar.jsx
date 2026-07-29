@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NAV_LINKS = [
-  { label: 'Features', href: '#features' },
-  { label: 'Architecture', href: '#architecture' },
+  { label: '7 Agents', href: '#how-it-works' },
+  { label: 'Benefits', href: '#benefits' },
   { label: 'Tech Stack', href: '#tech-stack' },
-  { label: 'Dashboard', href: 'dashboard.html' },
 ];
 
 export default function Navbar() {
@@ -13,36 +12,36 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 inset-x-0 z-10 px-5 sm:px-8 py-4 sm:py-5 flex flex-row justify-between items-center bg-transparent">
-        {/* Logo */}
-        <a href="#" className="flex flex-row items-center gap-3 group">
-          <span className="text-[21px] sm:text-[26px] tracking-tight text-black font-medium select-none">
-            RootSense&reg;
-          </span>
-          <span className="text-[25px] sm:text-[30px] text-black select-none tracking-[-0.02em] font-medium leading-none mb-1">
-            &#10033;
-          </span>
+      <header className="fixed top-0 inset-x-0 z-50 px-6 sm:px-12 py-4 flex flex-row justify-between items-center bg-white/80 backdrop-blur-md border-b border-neutral-100">
+        {/* Logo matching Target Screenshot */}
+        <a href="index.html" class="flex items-center gap-3 group">
+          <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-sm group-hover:bg-neutral-800 transition">
+            R
+          </div>
+          <span className="font-bold text-black text-lg">RootSense</span>
         </a>
 
-        {/* Desktop Nav Links */}
-        <nav className="hidden md:flex flex-row items-center text-[23px] text-black">
-          {NAV_LINKS.map((link, i) => (
-            <span key={link.label} className="flex items-center">
-              {i > 0 && <span className="opacity-40">,&nbsp;</span>}
-              <a href={link.href} className="hover:opacity-60 transition-opacity">
+        {/* Desktop Nav Links & CTA matching Target Screenshot */}
+        <div className="hidden md:flex items-center gap-8">
+          <nav className="flex items-center gap-8 text-sm font-medium text-neutral-600">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="hover:text-black transition-colors"
+              >
                 {link.label}
               </a>
-            </span>
-          ))}
-        </nav>
+            ))}
+          </nav>
 
-        {/* Desktop CTA */}
-        <a
-          href="dashboard.html"
-          className="hidden md:inline text-[23px] text-black underline underline-offset-2 hover:opacity-60 transition-opacity"
-        >
-          Launch demo
-        </a>
+          <a
+            href="dashboard.html"
+            className="px-5 py-2.5 bg-black text-white font-semibold rounded-xl hover:bg-neutral-800 transition text-sm shadow-md"
+          >
+            Console Demo &rarr;
+          </a>
+        </div>
 
         {/* Mobile Hamburger */}
         <button
@@ -70,22 +69,22 @@ export default function Navbar() {
         </button>
       </header>
 
-      {/* Mobile Navigation Overlay */}
+      {/* Mobile Navigation Drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="md:hidden fixed inset-0 z-[9] bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center gap-8"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden fixed inset-x-0 top-[65px] z-40 bg-white border-b border-neutral-200 p-6 flex flex-col gap-4 shadow-xl"
           >
             {NAV_LINKS.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-3xl text-black font-medium hover:opacity-60 transition-opacity"
+                className="text-base text-neutral-800 font-medium hover:text-black transition-colors"
               >
                 {link.label}
               </a>
@@ -93,9 +92,9 @@ export default function Navbar() {
             <a
               href="dashboard.html"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="text-xl text-black underline underline-offset-4 hover:opacity-60 transition-opacity mt-4"
+              className="mt-2 px-5 py-3 bg-black text-white font-semibold rounded-xl text-center text-sm"
             >
-              Launch demo
+              Console Demo &rarr;
             </a>
           </motion.div>
         )}
