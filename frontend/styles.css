@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+
+@font-face {
+    font-family: "InterVariableFramer";
+    src: url("https://rsms.me/inter/font-files/InterVariable.woff2?v=4.0") format("woff2-variations");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── Minimal Gallery Variable Font Morph ── */
+.weight-hover-letter {
+    display: inline-block;
+    font-family: "InterVariableFramer", "Inter", system-ui, sans-serif;
+    font-variation-settings: 'wght' 800;
+    white-space: pre;
+    will-change: font-variation-settings, transform;
+    transform-origin: center bottom;
+    transition: color 0.2s ease;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+section {
+    scroll-margin-top: 80px; /* Account for sticky header */
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+    letter-spacing: -0.02em;
+}
+
+textarea {
+    font-family: 'Fira Code', monospace;
+}
+
+/* ── Typography hierarchy ── */
+h1 {
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+}
+
+h2 {
+    font-size: clamp(2.5rem, 8vw, 7rem);
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+}
+
+h3 {
+    font-size: 1.875rem;
+    letter-spacing: -0.02em;
+}
+
+/* ── Whitespace-first approach ── */
+.space-y-16 > * + * { margin-top: 4rem; }
+.space-y-20 > * + * { margin-top: 5rem; }
+.space-y-24 > * + * { margin-top: 6rem; }
+
+/* ── Minimal Navigation ── */
+header, nav {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+nav a {
+    color: #000000;
+    transition: color 0.2s ease;
+}
+
+nav a:hover {
+    color: #2563EB;
+}
+
+/* ── Button styling (minimal) ── */
+button, .btn {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    transform: none; /* Minimalist: No scale, just clean color change */
+}
+
+/* ── Custom Sleek Minimal Scrollbar ── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #000000;
+}
+
+/* ── Toast Notification System (Minimal Light) ── */
+#toast-container {
+    position: fixed;
+    top: 5.5rem;
+    right: 1.25rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    min-width: 280px;
+    max-width: 400px;
+    background: #ffffff;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+    animation: toast-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    border: 1px solid #e5e7eb;
+}
+
+.toast-error {
+    border-left: 4px solid #dc2626;
+    color: #991b1b;
+}
+
+.toast-success {
+    border-left: 4px solid #16a34a;
+    color: #166534;
+}
+
+.toast-info {
+    border-left: 4px solid #2563eb;
+    color: #1e40af;
+}
+
+.toast-warning {
+    border-left: 4px solid #f59e0b;
+    color: #92400e;
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(120%); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Mobile Navigation Drawer ── */
+#mobile-menu {
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#mobile-menu.open {
+    transform: translateX(0);
+}
+
+#mobile-menu-overlay {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#mobile-menu-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ── Focus Visible (Accessibility) ── */
+a:focus-visible,
+button:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+/* ── Preset Sample Action Buttons ── */
+.sample-btn {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.sample-btn:hover {
+    background-color: #E5E7EB;
+    border-color: #000000;
+}
+.sample-btn:active {
+    transform: scale(0.98);
+}
+.sample-btn.ring-2 {
+    box-shadow: 0 0 0 2px #000000;
+}
+.sample-btn.active {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+/* Textarea focus state */
+#incidentInput:focus, #incident-input:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 1px #000000;
+}
+
+/* ── Interactive Agent Nodes (Console Dashboard) ── */
+.node-circle-container {
+    width: 3rem;
+    height: 3rem;
+}
+
+.node-circle {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    transition: all 0.4s ease;
+}
+
+.node-number {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background-color: #f3f4f6;
+    color: #000000;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    transition: all 0.4s ease;
+}
+
+.agent-node-wrapper.active .node-circle {
+    border-color: #000000;
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.agent-node-wrapper.active .node-number {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.agent-node-wrapper.done .node-circle {
+    border-color: #16a34a;
+    background-color: #f0fdf4;
+    color: #16a34a;
+}

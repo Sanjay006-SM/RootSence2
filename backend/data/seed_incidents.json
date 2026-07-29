@@ -1,0 +1,139 @@
+[
+  {
+    "id": "INC-001",
+    "title": "Database Connection Pool Exhaustion",
+    "service": "user-service",
+    "category": "database",
+    "severity": "high",
+    "raw_text": "FATAL: remaining connection slots are reserved for non-replication superuser connections. psycopg2.OperationalError: FATAL: sorry, too many clients already",
+    "root_cause": "The user-service failed to release database connections properly during a traffic spike, exhausting the connection pool limits set in pgbouncer.",
+    "resolution_steps": [
+      "Increase max_client_conn in pgbouncer temporarily.",
+      "Restart user-service pods to clear dead connections.",
+      "Fix connection leak in UserProfileRepository.getUser() method."
+    ],
+    "resolution_time": 45,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-002",
+    "title": "Redis Cache Timeout",
+    "service": "auth-service",
+    "category": "network/API",
+    "severity": "critical",
+    "raw_text": "TimeoutError: Redis connection to redis-cluster.internal:6379 timed out after 3000ms. GET session:9842a2",
+    "root_cause": "Network partition between auth-service and the Redis cluster in eu-west-1 zone caused session validation to hang.",
+    "resolution_steps": [
+      "Failover Redis to secondary node in eu-west-2.",
+      "Lower Redis timeout in auth-service from 3s to 1s to prevent cascading failures."
+    ],
+    "resolution_time": 20,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-003",
+    "title": "OOMKilled API Pods",
+    "service": "payment-processor",
+    "category": "memory",
+    "severity": "high",
+    "raw_text": "State: Terminated, Reason: OOMKilled, Exit Code: 137, Message: pod payment-processor-6b7df-z2x out of memory",
+    "root_cause": "A large batch processing job loaded 500k rows into memory without pagination, exceeding the 2GB container limit.",
+    "resolution_steps": [
+      "Bump memory limit to 4GB in deployment manifest to restore service.",
+      "Rewrite bulk-invoice processor to use stream reading (yield) instead of loading all rows into RAM."
+    ],
+    "resolution_time": 60,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-004",
+    "title": "Deployment Missing ConfigMap",
+    "service": "inventory-api",
+    "category": "deployment",
+    "severity": "medium",
+    "raw_text": "Error: CreateContainerConfigError: configmap \"inventory-secrets-v2\" not found",
+    "root_cause": "A helm deployment updated the deployment manifest but the corresponding ConfigMap was not pushed to the cluster first.",
+    "resolution_steps": [
+      "Manually apply the missing ConfigMap using kubectl.",
+      "Update CI/CD pipeline to ensure ConfigMaps are applied before Deployments."
+    ],
+    "resolution_time": 15,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-005",
+    "title": "JWT Signature Verification Failed",
+    "service": "gateway",
+    "category": "authentication",
+    "severity": "critical",
+    "raw_text": "401 Unauthorized - Exception: jwt.exceptions.InvalidSignatureError: Signature verification failed",
+    "root_cause": "The JWT signing key was rotated in the auth-service, but the API gateway was still using the cached old public key to verify tokens.",
+    "resolution_steps": [
+      "Restart API gateway to force a fetch of the new JWKS public keys.",
+      "Implement a background worker in gateway to refresh keys every 5 minutes."
+    ],
+    "resolution_time": 30,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-006",
+    "title": "Disk Space Full on Kafka Broker",
+    "service": "kafka-broker",
+    "category": "infrastructure",
+    "severity": "high",
+    "raw_text": "java.io.IOException: No space left on device at sun.nio.ch.FileDispatcherImpl.write0",
+    "root_cause": "Retention policies on a new high-throughput topic were set to 7 days instead of 24 hours, filling up the broker's attached EBS volume.",
+    "resolution_steps": [
+      "Expand EBS volume size on Kafka brokers via AWS console.",
+      "Alter topic configuration to reduce retention.ms to 86400000 (24h)."
+    ],
+    "resolution_time": 40,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-007",
+    "title": "Null Pointer Exception in Checkout",
+    "service": "checkout-service",
+    "category": "application-logic",
+    "severity": "high",
+    "raw_text": "java.lang.NullPointerException: Cannot invoke \"DiscountCode.getAmount()\" because \"discount\" is null in CartService.calculateTotal",
+    "root_cause": "A missing null check for an optional discount field during checkout caused the entire cart calculation to fail for users without promo codes.",
+    "resolution_steps": [
+      "Rollback checkout-service to previous version (v1.2.4).",
+      "Add Optional<DiscountCode> handling and null checks in CartService.java."
+    ],
+    "resolution_time": 25,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-008",
+    "title": "Deadlock in Order Processing",
+    "service": "order-service",
+    "category": "database",
+    "severity": "medium",
+    "raw_text": "ERROR 1213 (40001): Deadlock found when trying to get lock; try restarting transaction",
+    "root_cause": "Two concurrent transactions attempted to update the same rows in the 'orders' and 'inventory' tables in opposite order.",
+    "resolution_steps": [
+      "Application automatically retried and succeeded for most requests.",
+      "Update application code to always acquire locks in the same table order (orders then inventory)."
+    ],
+    "resolution_time": 120,
+    "status": "resolved"
+  },
+  {
+    "id": "INC-009",
+    "title": "502 Bad Gateway to Third-Party Provider",
+    "service": "shipping-service",
+    "category": "network/API",
+    "severity": "high",
+    "raw_text": "upstream connect error or disconnect/reset before headers. reset reason: connection failure to FedEx API",
+    "root_cause": "The external FedEx API underwent unannounced maintenance, causing upstream connection resets.",
+    "resolution_steps": [
+      "Disable FedEx shipping option in the frontend temporarily.",
+      "Route all orders to UPS integration.",
+      "Implement circuit breaker pattern for external shipping providers."
+    ],
+    "resolution_time": 50,
+    "status": "resolved"
+  }
+]
