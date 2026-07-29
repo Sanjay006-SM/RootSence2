@@ -272,31 +272,55 @@ textarea:focus-visible {
 }
 
 /* ── Floating Infinity Background Paths ── */
-.floating-path-line {
-    stroke-dasharray: 1200;
-    stroke-dashoffset: 1200;
-    animation: drawPathInfinity 16s infinite ease-in-out;
+.infinity-breathe {
+    width: 100%;
+    height: 100%;
+    animation: infinityFloat 16s ease-in-out infinite alternate;
+    transform-origin: center center;
+    will-change: transform;
 }
 
-@keyframes drawPathInfinity {
+@keyframes infinityFloat {
     0% {
-        stroke-dashoffset: 1200;
-        opacity: 0;
-    }
-    25% {
-        opacity: 0.7;
+        transform: scale(1) rotate(0deg);
     }
     50% {
-        stroke-dashoffset: 0;
+        transform: scale(1.04) rotate(1.2deg);
+    }
+    100% {
+        transform: scale(0.97) rotate(-1.2deg);
+    }
+}
+
+.floating-path-line {
+    stroke-dasharray: 200 400;
+    stroke-dashoffset: 0;
+    animation: flowInfinity 10s infinite linear;
+    will-change: stroke-dashoffset, opacity;
+}
+
+@keyframes flowInfinity {
+    0% {
+        stroke-dashoffset: 1200;
+        opacity: 0.15;
+    }
+    20% {
         opacity: 0.85;
     }
-    75% {
-        opacity: 0.7;
+    50% {
+        opacity: 0.95;
+    }
+    80% {
+        opacity: 0.85;
     }
     100% {
         stroke-dashoffset: -1200;
-        opacity: 0;
+        opacity: 0.15;
     }
+}
+
+.floating-path-base {
+    transition: stroke-opacity 0.3s ease;
 }
 
 /* ── Rotating Glowing Gradient Orb ── */
@@ -305,11 +329,12 @@ textarea:focus-visible {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 650px;
-    height: 650px;
+    width: 700px;
+    height: 700px;
     border-radius: 9999px;
     pointer-events: none;
-    animation: spinOrb 22s linear infinite;
+    animation: spinOrb 24s linear infinite;
+    will-change: transform;
 }
 
 @keyframes spinOrb {
@@ -317,10 +342,11 @@ textarea:focus-visible {
         transform: translate(-50%, -50%) rotate(0deg) scale(1);
     }
     50% {
-        transform: translate(-50%, -50%) rotate(180deg) scale(1.18);
+        transform: translate(-50%, -50%) rotate(180deg) scale(1.22);
     }
     100% {
         transform: translate(-50%, -50%) rotate(360deg) scale(1);
     }
 }
+
 
