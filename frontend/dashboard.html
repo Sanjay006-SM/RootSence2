@@ -89,74 +89,102 @@
                 </h2>
             </div>
             
-            <!-- Horizontal pipeline: Black & White structure -->
-            <div class="bg-white border border-gray-200 rounded-lg p-8">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-4" id="pipeline-container">
+            <!-- Horizontal pipeline: Black & White structure (7 Agents) -->
+            <div class="bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
+                <div class="flex items-center justify-between gap-2 min-w-[700px]" id="pipeline-container">
                     <!-- Agent 1 -->
-                    <div class="flex-1 text-center agent-node-wrapper w-full" id="step-ingestion">
-                        <div class="node-circle-container relative mx-auto mb-3">
-                            <div class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-gray-900 node-circle">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-ingestion">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 1
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-sm">Ingestion</p>
-                        <p class="text-xs text-gray-500 mt-1 font-mono agent-status truncate px-1" id="agent-1-status">Waiting...</p>
+                        <p class="font-semibold text-black text-xs">Ingestion</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-1-status">Waiting...</p>
                     </div>
                     
                     <!-- Arrow -->
-                    <div class="hidden md:block flex-shrink-0 w-12 h-0.5 bg-gray-300 mb-6 arrow-connector" id="arrow-1"></div>
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-1"></div>
                     
                     <!-- Agent 2 -->
-                    <div class="flex-1 text-center agent-node-wrapper w-full" id="step-matcher">
-                        <div class="node-circle-container relative mx-auto mb-3">
-                            <div class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-gray-900 node-circle">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-matcher">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 2
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-sm">Matcher</p>
-                        <p class="text-xs text-gray-500 mt-1 font-mono agent-status truncate px-1" id="agent-2-status">Waiting...</p>
+                        <p class="font-semibold text-black text-xs">Matcher</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-2-status">Waiting...</p>
                     </div>
                     
                     <!-- Arrow -->
-                    <div class="hidden md:block flex-shrink-0 w-12 h-0.5 bg-gray-300 mb-6 arrow-connector" id="arrow-2"></div>
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-2"></div>
                     
                     <!-- Agent 3 -->
-                    <div class="flex-1 text-center agent-node-wrapper w-full" id="step-diagnosis">
-                        <div class="node-circle-container relative mx-auto mb-3">
-                            <div class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-gray-900 node-circle">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-diagnosis">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 3
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-sm">Diagnosis</p>
-                        <p class="text-xs text-gray-500 mt-1 font-mono agent-status truncate px-1" id="agent-3-status">Waiting...</p>
+                        <p class="font-semibold text-black text-xs">Diagnosis</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-3-status">Waiting...</p>
                     </div>
                     
                     <!-- Arrow -->
-                    <div class="hidden md:block flex-shrink-0 w-12 h-0.5 bg-gray-300 mb-6 arrow-connector" id="arrow-3"></div>
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-3"></div>
                     
                     <!-- Agent 4 -->
-                    <div class="flex-1 text-center agent-node-wrapper w-full" id="step-resolution">
-                        <div class="node-circle-container relative mx-auto mb-3">
-                            <div class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-gray-900 node-circle">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-severity">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 4
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-sm">Resolution</p>
-                        <p class="text-xs text-gray-500 mt-1 font-mono agent-status truncate px-1" id="agent-4-status">Waiting...</p>
+                        <p class="font-semibold text-black text-xs">Severity</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-4-status">Waiting...</p>
                     </div>
                     
                     <!-- Arrow -->
-                    <div class="hidden md:block flex-shrink-0 w-12 h-0.5 bg-gray-300 mb-6 arrow-connector" id="arrow-4"></div>
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-4"></div>
                     
                     <!-- Agent 5 -->
-                    <div class="flex-1 text-center agent-node-wrapper w-full" id="step-learning">
-                        <div class="node-circle-container relative mx-auto mb-3">
-                            <div class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-gray-900 node-circle">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-resolution">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 5
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-sm">Learning</p>
-                        <p class="text-xs text-gray-500 mt-1 font-mono agent-status truncate px-1" id="agent-5-status">Waiting...</p>
+                        <p class="font-semibold text-black text-xs">Resolution</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-5-status">Waiting...</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-5"></div>
+                    
+                    <!-- Agent 6 -->
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-escalation">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
+                                6
+                            </div>
+                        </div>
+                        <p class="font-semibold text-black text-xs">Escalation</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-6-status">Waiting...</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-6"></div>
+
+                    <!-- Agent 7 -->
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-learning">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
+                                7
+                            </div>
+                        </div>
+                        <p class="font-semibold text-black text-xs">Learning</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-7-status">Waiting...</p>
                     </div>
                 </div>
             </div>
@@ -188,7 +216,7 @@
                             
                             <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
                                     data-type="oom"
-                                    data-text="OOMKilled: Kubernetes pod evicted due to memory limit exceeded. Image processor pod exceeded 2GB memory threshold while resizing batch of 500k image files without pagination.">
+                                    data-text="OOMKilled: Kubernetes pod evicted due to memory limit exceeded. Image processor pod exceeded 2GB memory threshold while resizing batch of 500k image files without pagination in payment-processor.">
                                 OOMKilled
                             </button>
                             
@@ -237,6 +265,26 @@
         <!-- 4. RESULTS SECTION (Minimal Gray Cards & Badges)     -->
         <!-- ---------------------------------------------------- -->
         <section id="results" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 opacity-50 transition-opacity duration-300">
+            <!-- Severity & Escalation Summary Banner -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-white border border-gray-200 rounded-lg p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-mono text-gray-500 uppercase tracking-wider font-semibold">Incident Severity & Priority</span>
+                        <span id="severityBadge" class="px-2.5 py-0.5 bg-black text-white text-xs font-mono font-bold rounded">--</span>
+                    </div>
+                    <p id="severityScoreText" class="text-sm text-gray-700 font-mono mt-1">Score: --</p>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-lg p-6 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-mono text-gray-500 uppercase tracking-wider font-semibold">Escalation & Routing</span>
+                        <span id="escalationStatusBadge" class="px-2.5 py-0.5 bg-gray-100 text-black text-xs font-mono font-semibold rounded border border-gray-300">--</span>
+                    </div>
+                    <p id="escalationChannelText" class="text-sm text-black font-mono font-bold mt-1">Channel: --</p>
+                    <p id="escalationMessageText" class="text-xs text-gray-500 mt-1 truncate">Message: --</p>
+                </div>
+            </div>
+
             <!-- Diagnosis Card: Gray/White, no colors -->
             <div class="bg-white border border-gray-200 rounded-lg p-8 mb-8">
                 <div class="flex items-center justify-between mb-4">

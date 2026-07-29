@@ -204,9 +204,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await simulateAgentStep('diagnosis', `Confidence: ${data.diagnosis.confidence}`, 3);
 
-            await simulateAgentStep('resolution', `Generated ${data.resolution.resolution_steps.length} steps`, 4);
+            if (data.severity) {
+                await simulateAgentStep('severity', `${data.severity.priority} (${data.severity.severity})`, 4);
+            }
 
-            await simulateAgentStep('learning', `Feedback loop active`, 5);
+            await simulateAgentStep('resolution', `Generated ${data.resolution.resolution_steps.length} steps`, 5);
+
+            if (data.escalation) {
+                await simulateAgentStep('escalation', data.escalation.escalate ? `Escalated ${data.escalation.channel}` : `Routed ${data.escalation.channel}`, 6);
+            }
+
+            await simulateAgentStep('learning', `Feedback loop active`, 7);
 
             analysisRunCount++;
             const statRunsEl = document.getElementById('statRuns');
@@ -276,13 +284,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 resolve();
-            }, 500);
+            }, 400);
         });
     }
 
     // Reset Agents Function
     function resetAgents() {
-        ['ingestion', 'matcher', 'diagnosis', 'resolution', 'learning'].forEach((step, idx) => {
+        ['ingestion', 'matcher', 'diagnosis', 'severity', 'resolution', 'escalation', 'learning'].forEach((step, idx) => {
             const el = document.getElementById(`step-${step}`);
             const statusEl = document.getElementById(`agent-${idx+1}-status`) || (el ? el.querySelector('.agent-status') : null);
             const circleEl = el ? el.querySelector('.node-circle') : null;
@@ -319,6 +327,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (resultsSection) {
             resultsSection.style.display = 'block';
             resultsSection.style.opacity = '1';
+        }
+
+        // Severity & Escalation Summary
+        if (data.severity) {
+            const sevBadge = document.getElementById('severityBadge');
+            const sevScoreText = document.getElementById('severityScoreText');
+            if (sevBadge) sevBadge.innerText = `${data.severity.priority} — ${data.severity.severity.toUpperCase()}`;
+            if (sevScoreText) sevScoreText.innerText = `Composite Score: ${data.severity.score}/14`;
+        }
+
+        if (data.escalation) {
+            const escBadge = document.getElementById('escalationStatusBadge');
+            const escChannelText = document.getElementById('escalationChannelText');
+            const escMsgText = document.getElementById('escalationMessageText');
+
+            if (escBadge) {
+                escBadge.innerText = data.escalation.escalate ? "ESCALATED (P1/P2)" : "ROUTED (STANDARD)";
+                escBadge.className = data.escalation.escalate
+                    ? "px-2.5 py-0.5 bg-black text-white text-xs font-mono font-bold rounded"
+                    : "px-2.5 py-0.5 bg-gray-100 text-black text-xs font-mono font-semibold rounded border border-gray-300";
+            }
+            if (escChannelText) escChannelText.innerText = `Target: ${data.escalation.channel} (${data.escalation.team})`;
+            if (escMsgText) escMsgText.innerText = data.escalation.message;
         }
 
         // Confidence Badge (All Gray, varying weights)

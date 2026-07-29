@@ -5,7 +5,15 @@ from typing import Dict, Any, Optional
 import os
 import uvicorn
 
-from backend.agents import IngestionAgent, MatcherAgent, DiagnosisAgent, ResolutionAgent, LearningAgent
+from backend.agents import (
+    IngestionAgent,
+    MatcherAgent,
+    DiagnosisAgent,
+    SeverityAgent,
+    ResolutionAgent,
+    EscalationAgent,
+    LearningAgent
+)
 from backend.kb import kb
 
 
@@ -15,7 +23,9 @@ app = FastAPI(title="RootSense API")
 ingestion_agent = IngestionAgent()
 matcher_agent = MatcherAgent()
 diagnosis_agent = DiagnosisAgent()
+severity_agent = SeverityAgent()
 resolution_agent = ResolutionAgent()
+escalation_agent = EscalationAgent()
 learning_agent = LearningAgent()
 
 def run_analysis_pipeline(raw_text: str) -> Dict[str, Any]:
@@ -23,13 +33,28 @@ def run_analysis_pipeline(raw_text: str) -> Dict[str, Any]:
     ingestion_result = ingestion_agent.process(raw_text)
     matcher_result = matcher_agent.process(ingestion_result)
     diagnosis_result = diagnosis_agent.process(matcher_result)
+    
+    severity_result = severity_agent.process(
+        service=ingestion_result.get("extracted_service", "unknown-service"),
+        diagnosis_confidence=diagnosis_result.get("confidence", "low"),
+        raw_error_text=raw_text
+    )
+    
     resolution_result = resolution_agent.process(matcher_result, diagnosis_result)
+    
+    escalation_result = escalation_agent.process(
+        service=ingestion_result.get("extracted_service", "unknown-service"),
+        severity_data=severity_result,
+        diagnosis_summary=diagnosis_result.get("root_cause_synthesis", "")
+    )
     
     return {
         "ingestion": ingestion_result,
         "matcher": matcher_result,
         "diagnosis": diagnosis_result,
-        "resolution": resolution_result
+        "severity": severity_result,
+        "resolution": resolution_result,
+        "escalation": escalation_result
     }
 
 class AnalyzeRequest(BaseModel):

@@ -356,3 +356,136 @@ def test_diagnosis_with_ollama_available():
     assert result["is_recurring"] is True
 
 
+# ---------------------------------------------------------------------------
+# Stage 12 — SeverityAgent & EscalationAgent Tests
+# ---------------------------------------------------------------------------
+
+def test_severity_agent_boundary_values():
+    """
+    Boundary-value testing for SeverityAgent score thresholds:
+    - Score >= 10: Critical / P1
+    - Score 7..9: High / P2
+    - Score 4..6: Medium / P3
+    - Score < 4: Low / P4
+    """
+    from backend.agents import SeverityAgent
+    agent = SeverityAgent()
+
+    # Score = 10 (Critical / P1): payment-processor (5) + high (3) + 1 keyword (2) = 10
+    res_10 = agent.process("payment-processor", "high", "crash detected")
+    assert res_10["score"] == 10
+    assert res_10["severity"] == "Critical"
+    assert res_10["priority"] == "P1"
+
+    # Score = 9 (High / P2): payment-processor (5) + medium (2) + 1 keyword (2) = 9
+    res_9 = agent.process("payment-processor", "medium", "crash detected")
+    assert res_9["score"] == 9
+    assert res_9["severity"] == "High"
+    assert res_9["priority"] == "P2"
+
+    # Score = 7 (High / P2): kafka-broker (4) + high (3) + 0 keywords = 7
+    res_7 = agent.process("kafka-broker", "high", "normal log")
+    assert res_7["score"] == 7
+    assert res_7["severity"] == "High"
+    assert res_7["priority"] == "P2"
+
+    # Score = 6 (Medium / P3): kafka-broker (4) + medium (2) + 0 keywords = 6
+    res_6 = agent.process("kafka-broker", "medium", "normal log")
+    assert res_6["score"] == 6
+    assert res_6["severity"] == "Medium"
+    assert res_6["priority"] == "P3"
+
+    # Score = 4 (Medium / P3): user-service (3) + low (1) + 0 keywords = 4
+    res_4 = agent.process("user-service", "low", "normal log")
+    assert res_4["score"] == 4
+    assert res_4["severity"] == "Medium"
+    assert res_4["priority"] == "P3"
+
+    # Score = 3 (Low / P4): shipping-service (2) + low (1) + 0 keywords = 3
+    res_3 = agent.process("shipping-service", "low", "normal log")
+    assert res_3["score"] == 3
+    assert res_3["severity"] == "Low"
+    assert res_3["priority"] == "P4"
+
+
+def test_severity_agent_case_insensitivity_and_malformed_input():
+    """
+    Verifies case-insensitivity ('HIGH' vs 'high') and graceful fallback for
+    None, empty, or unknown confidence and unknown service names.
+    """
+    from backend.agents import SeverityAgent
+    agent = SeverityAgent()
+
+    # Uppercase confidence string
+    res_upper = agent.process("auth-service", "HIGH", "outage")
+    assert res_upper["score"] == 5 + 3 + 2  # 10
+    assert res_upper["priority"] == "P1"
+
+    # None / empty / invalid confidence string
+    res_none = agent.process("auth-service", None, "no crisis")
+    assert res_none["score"] == 5 + 0 + 0  # 5 (base=5, conf=0)
+    assert res_none["severity"] == "Medium"
+    assert res_none["priority"] == "P3"
+
+    res_invalid = agent.process("auth-service", "super_high", "no crisis")
+    assert res_invalid["score"] == 5 + 0 + 0  # 5
+
+    # Unknown service defaults to criticality 2
+    res_unknown = agent.process("custom-microservice", "low", "no crisis")
+    assert res_unknown["score"] == 2 + 1 + 0  # 3 -> Low / P4
+    assert res_unknown["priority"] == "P4"
+
+
+def test_escalation_agent_routing_and_escalation():
+    """
+    Verifies EscalationAgent team lookup, P1/P2 escalation flag, and channel naming.
+    """
+    from backend.agents import EscalationAgent
+    agent = EscalationAgent()
+
+    # P1 -> Escalated to #payments-urgent
+    sev_p1 = {"severity": "Critical", "priority": "P1", "score": 11}
+    res_p1 = agent.process("payment-processor", sev_p1, "Database pool exhausted")
+    assert res_p1["escalate"] is True
+    assert res_p1["channel"] == "#payments-urgent"
+    assert res_p1["team"] == "payments"
+    assert "[P1] Escalating" in res_p1["message"]
+
+    # P3 -> Not escalated, routed to #orders-alerts
+    sev_p3 = {"severity": "Medium", "priority": "P3", "score": 5}
+    res_p3 = agent.process("order-service", sev_p3, "Minor delay in processing")
+    assert res_p3["escalate"] is False
+    assert res_p3["channel"] == "#orders-alerts"
+    assert res_p3["team"] == "orders"
+
+    # Unknown service -> general-oncall
+    res_unknown = agent.process("billing-worker", sev_p3, "Task timed out")
+    assert res_unknown["team"] == "general-oncall"
+    assert res_unknown["channel"] == "#general-oncall-alerts"
+
+
+def test_full_7_agent_pipeline_e2e():
+    """
+    End-to-end integration test for the full 7-agent pipeline via /api/analyze.
+    """
+    payload = {"raw_text": "FATAL: OOMKilled payment-processor deadlock found in transaction"}
+    response = client.post("/api/analyze", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+
+    # All 6 output components must be present
+    assert "ingestion" in data
+    assert "matcher" in data
+    assert "diagnosis" in data
+    assert "severity" in data
+    assert "resolution" in data
+    assert "escalation" in data
+
+    # Verify severity & escalation output
+    assert data["severity"]["priority"] == "P1"
+    assert data["severity"]["severity"] == "Critical"
+    assert data["escalation"]["escalate"] is True
+    assert data["escalation"]["channel"] == "#payments-urgent"
+
+
+

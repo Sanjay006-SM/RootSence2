@@ -30,46 +30,50 @@ RootSense is a multi-agent system that matches incoming production errors agains
 
 ## Architecture
 
-RootSense uses a 5-agent pipeline. Data flows sequentially through the agents, with the Knowledge Base (KB) feeding into the Matcher and receiving feedback updates from the Learning Agent. The multi-agent pipeline visualization shows real-time progress as each agent completes — watch it light up as errors are analyzed.
+RootSense uses a 7-agent pipeline. Data flows sequentially through the agents, with the Knowledge Base (KB) feeding into the Matcher and receiving feedback updates from the Learning Agent. The multi-agent pipeline visualization shows real-time progress as each agent completes — watch it light up as errors are analyzed.
 
 ```
 Incoming Incident Text / Webhook Payload
        │
        ▼
- [ Ingestion Agent ]  ──(Extracts service name via regex)──┐
-       │                                                    │
-       ▼                                                    ▼
- [ Matcher Agent ] ◀────(TF-IDF & Cosine Similarity)──── [ Knowledge Base ]
-       │                                                    ▲
-       ▼                                                    │
- [ Diagnosis Agent ] ──(Synthesizes root cause & confidence)│
-       │                                                    │
-       ▼                                                    │
- [ Resolution Agent ] ──(Deduplicates & merges actions)     │
-       │                                                    │
-       ▼                                                    │
-(Feedback via UI) ──────────────────────────────────────────┘
+ [ Ingestion Agent ]   ──(Extracts service name via regex)──┐
+       │                                                     │
+       ▼                                                     ▼
+ [ Matcher Agent ]   ◀────(TF-IDF & Cosine Similarity)──── [ Knowledge Base ]
+       │                                                     ▲
+       ▼                                                     │
+ [ Diagnosis Agent ] ──(Synthesizes root cause & confidence) │
+       │                                                     │
+       ▼                                                     │
+ [ Severity Agent ]  ──(Calculates P1-P4 & Criticality)      │
+       │                                                     │
+       ▼                                                     │
+ [ Resolution Agent ] ──(Deduplicates & merges actions)      │
+       │                                                     │
+       ▼                                                     │
+ [ Escalation Agent ] ──(Routes to team & urgent channel)    │
+       │                                                     │
+       ▼                                                     │
+(Feedback via UI) ───────────────────────────────────────────┘
  [ Learning Agent ]
 ```
 
-### The 5 Agents
+### The 7 Agents
 
-1. **Ingestion Agent**: Extracts the service name from raw incident text using a fixed regex list of 9 known service names (`user-service`, `auth-service`, `payment-processor`, `inventory-api`, `gateway`, `kafka-broker`, `checkout-service`, `order-service`, `shipping-service`). Any text that doesn't match one of these falls back to `"unknown-service"`. No category extraction is performed.
+1. **Ingestion Agent**: Extracts the service name from raw incident text using a fixed regex list of 9 known service names (`user-service`, `auth-service`, `payment-processor`, `inventory-api`, `gateway`, `kafka-broker`, `checkout-service`, `order-service`, `shipping-service`). Any text that doesn't match one of these falls back to `"unknown-service"`.
 
-2. **Matcher Agent**: Builds a TF-IDF vector from the query and all KB incidents, then computes cosine similarity scores. Returns two numbers per match:
-   - **`similarity`** (raw %): The actual TF-IDF cosine similarity, displayed to the user. This value is deterministic and unaffected by feedback.
-   - **`boosted_score`** (ranked %): `similarity × boost_factor`, used only for ranking order. The boost factor starts at 1.0 and is adjusted by the Learning Agent.
-   
-   Matches are gated on the **raw** similarity (≥15% threshold), then sorted by **boosted** score. This means feedback can reorder results but never fabricate a match that didn't pass the raw quality bar.
+2. **Matcher Agent**: Builds a TF-IDF vector from the query and all KB incidents, then computes cosine similarity scores. Returns raw `similarity` and `boosted_score`.
 
-3. **Diagnosis Agent**: Synthesizes a probable root cause explanation from the top match's historical data. Assigns confidence bands based on raw `max_similarity`:
-   - **High**: >50% — strong textual overlap with a known incident
-   - **Medium**: 15–50% — partial match, displayed with a warning banner
-   - **Low**: <15% — no usable match, falls back to "escalate to on-call"
+3. **Diagnosis Agent**: Synthesizes a probable root cause explanation from top historical matches using local Ollama (`mistral`) or template fallback. Assigns confidence bands (`high`, `medium`, `low`).
 
-4. **Resolution Agent**: Merges and deduplicates resolution steps from the top KB matches into a single action plan (capped at 5 steps). Returns a separate `warning` field (not embedded in the steps list) when confidence is medium, which the frontend renders as a distinct yellow banner above the numbered action list.
+4. **Severity Agent**: Combines service criticality (`SERVICE_CRITICALITY`), diagnosis confidence bonus, and crisis keywords (`outage`, `crash`, `oom`, `deadlock`, etc.) to calculate a composite score and assign **Severity** (`Critical`, `High`, `Medium`, `Low`) and **Priority** (`P1`, `P2`, `P3`, `P4`).
 
-5. **Learning Agent**: Processes engineer feedback (thumbs up/down) by adjusting a per-incident `boost` multiplier (±0.1 per vote, clamped to `[0.5, 2.0]`). This affects the **ranking order** of future matches via `boosted_score`, while leaving the raw `similarity` display untouched. The boost is stored **in-memory only** and resets to 1.0 when the server restarts. No model is trained; this is simple multiplicative reinforcement on the ranking score.
+5. **Resolution Agent**: Merges and deduplicates resolution steps from top KB matches into an action plan (capped at 5 steps).
+
+6. **Escalation Agent**: Maps services to owning on-call teams (`payments`, `sec-auth`, `infra`, `inventory`, etc.) and determines if an incident requires urgent escalation (`escalate: true` for P1/P2) with simulated alert messages and target channels (e.g. `#payments-urgent`).
+
+7. **Learning Agent**: Processes engineer feedback (thumbs up/down) by adjusting a per-incident `boost` multiplier (±0.1 per vote, clamped to `[0.5, 2.0]`).
+
 
 ### Dashboard Stats
 

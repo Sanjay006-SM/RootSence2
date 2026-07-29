@@ -140,3 +140,105 @@ class LearningAgent:
             "status": "success" if success else "not_found",
             "message": msg
         }
+
+class SeverityAgent:
+    """Evaluates service criticality, confidence, and crisis keywords to compute incident severity."""
+    description = "Evaluates service criticality, confidence, and crisis keywords to calculate incident severity."
+
+    SERVICE_CRITICALITY = {
+        "payment-processor": 5,
+        "auth-service": 5,
+        "kafka-broker": 4,
+        "checkout-service": 4,
+        "gateway": 4,
+        "order-service": 3,
+        "inventory-api": 3,
+        "user-service": 3,
+        "shipping-service": 2,
+    }
+
+    CONFIDENCE_BONUS = {
+        "high": 3,
+        "medium": 2,
+        "low": 1
+    }
+
+    CRISIS_KEYWORDS = [
+        "outage", "down", "crash", "oom", "unauthorized",
+        "deadlock", "fatal", "evicted", "exhausted", "exceeded"
+    ]
+
+    def process(self, service: str, diagnosis_confidence: str, raw_error_text: str) -> Dict[str, Any]:
+        # Service criticality score
+        service_clean = (service or "").lower().strip()
+        base_score = self.SERVICE_CRITICALITY.get(service_clean, 2)
+
+        # Confidence bonus (case-insensitive & graceful fallback)
+        conf_str = (diagnosis_confidence or "").lower().strip()
+        conf_bonus = self.CONFIDENCE_BONUS.get(conf_str, 0)
+
+        # Keyword bonus (+2 points per matched keyword, capped at +6)
+        raw_text_lower = (raw_error_text or "").lower()
+        matched_keywords = [kw for kw in self.CRISIS_KEYWORDS if kw in raw_text_lower]
+        keyword_bonus = min(len(matched_keywords) * 2, 6)
+
+        total_score = base_score + conf_bonus + keyword_bonus
+
+        # Map total score to severity and priority bands
+        if total_score >= 10:
+            severity = "Critical"
+            priority = "P1"
+        elif total_score >= 7:
+            severity = "High"
+            priority = "P2"
+        elif total_score >= 4:
+            severity = "Medium"
+            priority = "P3"
+        else:
+            severity = "Low"
+            priority = "P4"
+
+        return {
+            "severity": severity,
+            "priority": priority,
+            "score": total_score
+        }
+
+class EscalationAgent:
+    """Determines team routing and escalation decisions based on service and severity."""
+    description = "Determines team routing and escalation decisions based on service and severity."
+
+    TEAM_OWNERS = {
+        "payment-processor": "payments",
+        "auth-service": "sec-auth",
+        "kafka-broker": "infra",
+        "inventory-api": "inventory",
+        "gateway": "edge",
+        "checkout-service": "checkout",
+        "order-service": "orders",
+        "shipping-service": "logistics",
+        "user-service": "identity",
+    }
+
+    def process(self, service: str, severity_data: Dict[str, Any], diagnosis_summary: str) -> Dict[str, Any]:
+        # SIMULATED INTEGRATION POINT: In production, this dispatches via Slack/PagerDuty webhooks.
+        service_clean = (service or "").lower().strip()
+        team_name = self.TEAM_OWNERS.get(service_clean, "general-oncall")
+
+        priority = (severity_data.get("priority") if severity_data else None) or "P4"
+        escalate = priority in ["P1", "P2"]
+
+        if escalate:
+            channel = f"#{team_name}-urgent"
+        else:
+            channel = f"#{team_name}-alerts"
+
+        message = f"[{priority}] Escalating {service or 'unknown-service'} incident to {team_name}: {diagnosis_summary}"
+
+        return {
+            "channel": channel,
+            "escalate": escalate,
+            "message": message,
+            "team": team_name
+        }
+
