@@ -1,16 +1,25 @@
 import BackgroundPaths from './components/BackgroundPaths';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
+import AgentsSection from './components/AgentsSection';
+import BenefitsSection from './components/BenefitsSection';
+import TechStackSection from './components/TechStackSection';
+import { CtaSection, Footer } from './components/CtaSection';
 
 export default function App() {
   return (
-    <div className="relative bg-white text-neutral-900 font-sans selection:bg-[#EAECE9] selection:text-[#1C2E1E] antialiased overflow-x-hidden flex flex-col lg:block lg:min-h-screen">
+    <div className="relative bg-white text-neutral-900 font-sans selection:bg-neutral-900 selection:text-white antialiased overflow-x-hidden min-h-screen">
       <Navbar />
 
-      <div className="relative z-10 flex flex-col order-first lg:order-none w-full bg-transparent pb-8 lg:pb-0 lg:min-h-screen">
+      <main className="relative z-10">
         <HeroSection />
-      </div>
+        <AgentsSection />
+        <BenefitsSection />
+        <TechStackSection />
+        <CtaSection />
+      </main>
 
+      <Footer />
       <BackgroundPaths />
     </div>
   );
