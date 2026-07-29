@@ -270,3 +270,57 @@ textarea:focus-visible {
     background-color: #f0fdf4;
     color: #16a34a;
 }
+
+/* ── Floating Infinity Background Paths ── */
+.floating-path-line {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: drawPathInfinity 16s infinite ease-in-out;
+}
+
+@keyframes drawPathInfinity {
+    0% {
+        stroke-dashoffset: 1200;
+        opacity: 0;
+    }
+    25% {
+        opacity: 0.7;
+    }
+    50% {
+        stroke-dashoffset: 0;
+        opacity: 0.85;
+    }
+    75% {
+        opacity: 0.7;
+    }
+    100% {
+        stroke-dashoffset: -1200;
+        opacity: 0;
+    }
+}
+
+/* ── Rotating Glowing Gradient Orb ── */
+.gradient-orb-spin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 650px;
+    height: 650px;
+    border-radius: 9999px;
+    pointer-events: none;
+    animation: spinOrb 22s linear infinite;
+}
+
+@keyframes spinOrb {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) rotate(180deg) scale(1.18);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg) scale(1);
+    }
+}
+
