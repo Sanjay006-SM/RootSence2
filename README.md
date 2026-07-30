@@ -64,7 +64,7 @@ Incoming Incident Text / Webhook Payload
 
 2. **Matcher Agent**: Builds a TF-IDF vector from the query and all KB incidents, then computes cosine similarity scores. Returns raw `similarity` and `boosted_score`.
 
-3. **Diagnosis Agent**: Synthesizes a probable root cause explanation from top historical matches using local Ollama (`mistral`) or template fallback. Assigns confidence bands (`high`, `medium`, `low`).
+3. **Diagnosis Agent**: Synthesizes a probable root cause explanation from top historical matches using local Ollama (`llama3`) or template fallback. Assigns confidence bands (`high`, `medium`, `low`).
 
 4. **Severity Agent**: Combines service criticality (`SERVICE_CRITICALITY`), diagnosis confidence bonus, and crisis keywords (`outage`, `crash`, `oom`, `deadlock`, etc.) to calculate a composite score and assign **Severity** (`Critical`, `High`, `Medium`, `Low`) and **Priority** (`P1`, `P2`, `P3`, `P4`).
 
@@ -133,14 +133,14 @@ Accepts Sentry Issue Alert webhook payloads. It extracts the exception type, exc
 
 ## Optional: Local Ollama Model for Natural Diagnosis Prose
 
-By default, RootSense generates root cause explanations using a deterministic template. If you have [Ollama](https://ollama.ai) running locally with the **Mistral** model, the DiagnosisAgent will rewrite the explanation into clearer, more actionable prose for on-call engineers — completely offline, with **no API keys or payments needed**.
+By default, RootSense generates root cause explanations using a deterministic template. If you have [Ollama](https://ollama.ai) running locally with the **Llama 3** model, the DiagnosisAgent will rewrite the explanation into clearer, more actionable prose for on-call engineers — completely offline, with **no API keys or payments needed**.
 
 ### Prerequisites
 
 1. Install Ollama from [ollama.ai](https://ollama.ai)
-2. Pull the Mistral model:
+2. Pull the Llama 3 model:
    ```bash
-   ollama pull mistral
+   ollama pull llama3
    ```
 
 ### Usage

@@ -1,5 +1,4 @@
-import Navbar from './components/Navbar';
-import HeroSection from './components/HeroSection';
+import { RobotHero } from './components/ui/robot-hero';
 import ContainerScroll from './components/ContainerScroll';
 import AgentsSection from './components/AgentsSection';
 import BenefitsSection from './components/BenefitsSection';
@@ -11,13 +10,11 @@ import dashboardPreview from './assets/dashboard-preview.png';
 export default function App() {
   return (
     <div className="relative bg-white text-neutral-900 font-sans selection:bg-neutral-900 selection:text-white antialiased overflow-x-hidden min-h-screen">
-      <Navbar />
-
       <main className="relative z-10">
-        {/* 1. Hero Section */}
-        <HeroSection />
+        {/* 1. Hero Section — 3D holographic agent core + sticky pill nav (replaces the old flat hero/navbar) */}
+        <RobotHero onCtaClick={() => { window.location.href = 'dashboard.html'; }} />
 
-        {/* 2. ContainerScroll Product Preview (Placed directly below HeroSection as a "see it in action" live dashboard reveal before reading the 7-Agent breakdown) */}
+        {/* 2. ContainerScroll Product Preview (Placed directly below HeroSection as a "see it in action" live dashboard reveal before reading the 11-Agent breakdown) */}
         <ContainerScroll
           titleComponent={
             <h1 className="text-3xl md:text-5xl font-semibold text-black">

@@ -1,7 +1,10 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+import time
+import uuid
+import difflib
 from backend.kb import kb
 
 class IngestionAgent:
@@ -240,5 +243,145 @@ class EscalationAgent:
             "escalate": escalate,
             "message": message,
             "team": team_name
+        }
+
+
+class CorrelationAgent:
+    """Detects whether an incoming incident belongs to an already-processed incident
+    (same service, high text similarity, within a recent time window) to avoid
+    duplicate analysis and alert storms. Uses an in-memory cache only — no database."""
+
+    def __init__(self, window_seconds: int = 300, similarity_threshold: float = 0.75):
+        self.window_seconds = window_seconds
+        self.similarity_threshold = similarity_threshold
+        self._recent_incidents: List[Dict[str, Any]] = []  # in-memory cache
+
+    def process(self, service: str, raw_text: str) -> Dict[str, Any]:
+        now = time.time()
+        # Evict entries outside the correlation time window
+        self._recent_incidents = [
+            entry for entry in self._recent_incidents
+            if now - entry["timestamp"] <= self.window_seconds
+        ]
+
+        service_clean = (service or "").lower().strip()
+        best_match = None
+        best_score = 0.0
+        for entry in self._recent_incidents:
+            if entry["service"] != service_clean:
+                continue
+            score = difflib.SequenceMatcher(None, entry["raw_text"], raw_text).ratio()
+            if score > best_score:
+                best_score = score
+                best_match = entry
+
+        if best_match and best_score >= self.similarity_threshold:
+            incident_id = best_match["incident_id"]
+            is_duplicate = True
+        else:
+            incident_id = uuid.uuid4().hex[:8]
+            is_duplicate = False
+            self._recent_incidents.append({
+                "incident_id": incident_id,
+                "service": service_clean,
+                "raw_text": raw_text,
+                "timestamp": now
+            })
+
+        return {
+            "incident_id": incident_id,
+            "is_duplicate": is_duplicate,
+            "correlation_confidence": round(best_score * 100, 1)
+        }
+
+
+class DiagnosisVerificationAgent:
+    """Validates whether the Diagnosis Agent's output is reliable enough for downstream
+    agents to act on. Only validates — it never regenerates or alters the diagnosis."""
+
+    def process(self, matcher_data: Dict[str, Any], diagnosis_data: Dict[str, Any]) -> Dict[str, Any]:
+        similarity = matcher_data.get("max_similarity", 0.0) / 100.0
+        confidence = (diagnosis_data.get("confidence") or "low").lower()
+        has_evidence = bool(matcher_data.get("matches"))
+
+        if similarity > 0.80 and confidence == "high":
+            status = "Verified"
+            reason = "High similarity match combined with high diagnosis confidence."
+        elif not has_evidence or confidence == "low":
+            status = "Low Confidence"
+            reason = "Insufficient matching evidence to trust this diagnosis without review."
+        else:
+            status = "Needs Human Review"
+            reason = "Moderate similarity/confidence — recommend human confirmation before acting."
+
+        return {
+            "verification_status": status,
+            "verification_reason": reason,
+            "verified_confidence": confidence
+        }
+
+
+class ImpactBlastRadiusAgent:
+    """Estimates which downstream services may be affected by an incident using a
+    lightweight, static service dependency map (no Kubernetes/Prometheus integration)."""
+
+    DEPENDENCY_GRAPH = {
+        "gateway": ["auth-service", "checkout-service"],
+        "payment-processor": ["checkout-service", "order-service"],
+        "auth-service": ["user-service", "checkout-service"],
+        "checkout-service": ["order-service", "shipping-service"],
+        "kafka-broker": ["order-service", "inventory-api", "shipping-service"],
+        "inventory-api": ["order-service"],
+        "user-service": ["auth-service"],
+        "order-service": ["shipping-service"],
+    }
+
+    def process(self, service: str) -> Dict[str, Any]:
+        service_clean = (service or "").lower().strip()
+        affected = self.DEPENDENCY_GRAPH.get(service_clean, [])
+
+        if len(affected) >= 3:
+            impact_level = "High"
+        elif len(affected) >= 1:
+            impact_level = "Medium"
+        else:
+            impact_level = "Low"
+
+        business_impact = (
+            f"Potential disruption to {len(affected)} downstream service(s)."
+            if affected else "No known downstream dependencies affected."
+        )
+
+        return {
+            "affected_services": affected,
+            "business_impact": business_impact,
+            "estimated_impact_level": impact_level
+        }
+
+
+class KnowledgeCurationAgent:
+    """After positive engineer feedback on a weak match, suggests whether the incident
+    should become a new reusable KB entry. Only produces a draft suggestion — it never
+    writes to the knowledge base automatically."""
+
+    def process(
+        self,
+        feedback: str,
+        match_confidence: Optional[float],
+        incident_context: Dict[str, Any],
+        confidence_threshold: float = 50.0
+    ) -> Optional[Dict[str, Any]]:
+        if feedback != "up" or match_confidence is None or match_confidence >= confidence_threshold:
+            return None
+
+        service = incident_context.get("service", "unknown-service")
+
+        return {
+            "suggested_title": f"New recurring issue in {service}",
+            "root_cause": incident_context.get("root_cause", "Root cause not yet documented."),
+            "resolution_steps": incident_context.get("resolution_steps", []),
+            "tags": [service, "auto-suggested"],
+            "service": service,
+            "status": "draft"
         }
 

@@ -8,6 +8,26 @@ document.addEventListener('DOMContentLoaded', () => {
     initToastContainer();
 
     let analysisRunCount = 0;
+    let currentIncidentId = null;
+    let currentMatchConfidence = null;
+
+    // Single source of truth for the 11-agent pipeline: order, label, and the
+    // one-line description shown while each agent is actively running.
+    const AGENT_PIPELINE = [
+        { id: 'ingestion',    label: 'Ingestion',              description: 'Extracting structured incident metadata...' },
+        { id: 'correlation',  label: 'Correlation',            description: 'Checking whether this belongs to an existing incident...' },
+        { id: 'matcher',      label: 'Matcher',                description: 'Searching historical incidents...' },
+        { id: 'diagnosis',    label: 'Diagnosis',              description: 'Determining probable root cause...' },
+        { id: 'verification', label: 'Diagnosis Verification', description: 'Validating diagnosis confidence...' },
+        { id: 'impact',       label: 'Impact & Blast Radius',  description: 'Estimating affected services...' },
+        { id: 'severity',     label: 'Severity',               description: 'Calculating incident priority...' },
+        { id: 'resolution',   label: 'Resolution',             description: 'Generating recovery actions...' },
+        { id: 'escalation',   label: 'Escalation',             description: 'Selecting the responsible response team...' },
+        { id: 'learning',     label: 'Learning',               description: 'Processing engineer feedback...' },
+        { id: 'curation',     label: 'Knowledge Curation',     description: 'Preparing reusable organizational knowledge...' }
+    ];
+    const TOTAL_AGENTS = AGENT_PIPELINE.length;
+    let completedAgentCount = 0;
 
     // Helper to get element by primary or fallback ID
     function getEl(primaryId, fallbackId) {
@@ -124,6 +144,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initSampleButtons();
+
+    // ── Per-Agent Execution Detail Cards (expandable, built once from AGENT_PIPELINE) ──
+    function initAgentDetailsPanel() {
+        const list = document.getElementById('agentDetailsList');
+        if (!list) return;
+
+        list.innerHTML = AGENT_PIPELINE.map(agent => `
+            <details class="group px-6 py-3" id="detail-${agent.id}">
+                <summary class="flex items-center justify-between cursor-pointer list-none select-none">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0" id="detail-dot-${agent.id}"></span>
+                        <span class="text-sm font-semibold text-black">${agent.label}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-mono text-gray-500" id="detail-status-${agent.id}">Waiting...</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180"></i>
+                    </div>
+                </summary>
+                <div class="mt-3 pl-5 text-xs font-mono text-gray-700 space-y-1" id="detail-body-${agent.id}">
+                    <span class="text-gray-400 italic">No output yet — run an analysis to populate this card.</span>
+                </div>
+            </details>
+        `).join('');
+
+        if (window.lucide) lucide.createIcons();
+    }
+    initAgentDetailsPanel();
 
     // ── Client-side Log File Upload (.txt only) ──
     function initFileUploadHandler() {
@@ -264,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dashboard Analyze Button Logic
     const analyzeBtn = getEl('analyzeBtn', 'analyze-btn');
-    let currentIncidentId = null;
 
     if (analyzeBtn) {
         analyzeBtn.addEventListener('click', runAnalysis);
@@ -317,24 +363,37 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
 
-            await simulateAgentStep('ingestion', `Extracted: ${data.ingestion.extracted_service}`, 1);
+            await simulateAgentStep('ingestion', `Extracted: ${data.ingestion.extracted_service}`, 1, data.ingestion);
+
+            if (data.correlation) {
+                await simulateAgentStep('correlation', data.correlation.is_duplicate ? `Duplicate of ${data.correlation.incident_id}` : `New incident ${data.correlation.incident_id}`, 2, data.correlation);
+            }
 
             const matchCount = data.matcher.matches.length;
-            await simulateAgentStep('matcher', `Matched ${matchCount} (${data.matcher.max_similarity}%)`, 2);
+            await simulateAgentStep('matcher', `Matched ${matchCount} (${data.matcher.max_similarity}%)`, 3, data.matcher);
 
-            await simulateAgentStep('diagnosis', `Confidence: ${data.diagnosis.confidence}`, 3);
+            await simulateAgentStep('diagnosis', `Confidence: ${data.diagnosis.confidence}`, 4, data.diagnosis);
+
+            if (data.verification) {
+                await simulateAgentStep('verification', data.verification.verification_status, 5, data.verification);
+            }
+
+            if (data.impact) {
+                await simulateAgentStep('impact', `${data.impact.estimated_impact_level} (${data.impact.affected_services.length} services)`, 6, data.impact);
+            }
 
             if (data.severity) {
-                await simulateAgentStep('severity', `${data.severity.priority} (${data.severity.severity})`, 4);
+                await simulateAgentStep('severity', `${data.severity.priority} (${data.severity.severity})`, 7, data.severity);
             }
 
-            await simulateAgentStep('resolution', `Generated ${data.resolution.resolution_steps.length} steps`, 5);
+            await simulateAgentStep('resolution', `Generated ${data.resolution.resolution_steps.length} steps`, 8, data.resolution);
 
             if (data.escalation) {
-                await simulateAgentStep('escalation', data.escalation.escalate ? `Escalated ${data.escalation.channel}` : `Routed ${data.escalation.channel}`, 6);
+                await simulateAgentStep('escalation', data.escalation.escalate ? `Escalated ${data.escalation.channel}` : `Routed ${data.escalation.channel}`, 9, data.escalation);
             }
 
-            await simulateAgentStep('learning', `Feedback loop active`, 7);
+            await simulateAgentStep('learning', `Feedback loop active`, 10, { status: 'idle', note: 'Activates once engineer feedback is submitted below.' });
+            await simulateAgentStep('curation', `Awaiting engineer feedback`, 11, { status: 'idle', note: 'Drafts a KB entry suggestion once feedback is submitted, if applicable.' });
 
             analysisRunCount++;
             const statRunsEl = document.getElementById('statRuns');
@@ -353,12 +412,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Formats an agent's raw JSON output into readable key/value rows for its detail card.
+    function renderAgentOutput(output) {
+        if (!output || typeof output !== 'object') {
+            return '<span class="text-gray-400 italic">No structured output returned.</span>';
+        }
+
+        const rows = Object.entries(output)
+            .filter(([key]) => key !== 'raw_text') // avoid duplicating the full input log inline
+            .map(([key, value]) => {
+                let displayValue;
+                if (Array.isArray(value)) {
+                    displayValue = value.length ? value.join(', ') : '—';
+                } else if (value && typeof value === 'object') {
+                    displayValue = JSON.stringify(value);
+                } else if (value === null || value === undefined || value === '') {
+                    displayValue = '—';
+                } else {
+                    displayValue = String(value);
+                }
+                return `<div class="flex justify-between gap-4 py-1 border-b border-gray-100 last:border-0">
+                    <span class="text-gray-500 flex-shrink-0">${key}</span>
+                    <span class="text-black text-right break-words">${displayValue}</span>
+                </div>`;
+            });
+
+        return rows.length ? rows.join('') : '<span class="text-gray-400 italic">No structured output returned.</span>';
+    }
+
+    // Updates the "Completed Agents: X / 11" progress indicator with a subtle pulse.
+    function updateProgressIndicator(count) {
+        const progressEl = document.getElementById('pipelineProgressText');
+        if (!progressEl) return;
+        progressEl.innerText = `Completed Agents: ${count} / ${TOTAL_AGENTS}`;
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(progressEl, { opacity: 0.4, y: -2 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power1.out' });
+        }
+    }
+
     // Step Simulator Helper (Black / Gray Aesthetic)
-    async function simulateAgentStep(stepId, doneMsg, stepIndex) {
+    async function simulateAgentStep(stepId, doneMsg, stepIndex, outputData) {
         return new Promise(resolve => {
+            const meta = AGENT_PIPELINE.find(a => a.id === stepId);
+            const runningMsg = meta ? meta.description : 'Analyzing...';
+
             const el = document.getElementById(`step-${stepId}`);
             const statusEl = document.getElementById(`agent-${stepIndex}-status`) || (el ? el.querySelector('.agent-status') : null);
             const circleEl = el ? el.querySelector('.node-circle') : null;
+
+            const detailStatusEl = document.getElementById(`detail-status-${stepId}`);
+            const detailDotEl = document.getElementById(`detail-dot-${stepId}`);
+            const detailBodyEl = document.getElementById(`detail-body-${stepId}`);
 
             if (el && typeof gsap !== 'undefined') {
                 gsap.to(el, {
@@ -375,10 +479,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             }
-            
+
+            // One-line running description under the pipeline node, e.g. "Determining probable root cause..."
             if (statusEl) {
-                statusEl.innerText = 'Analyzing...';
+                statusEl.innerText = runningMsg;
                 statusEl.className = 'text-xs text-black font-mono font-semibold mt-1 truncate px-1';
+            }
+            if (detailStatusEl) detailStatusEl.innerText = 'Running...';
+            if (detailDotEl) {
+                detailDotEl.className = 'w-2 h-2 rounded-full bg-gray-500 flex-shrink-0 animate-pulse';
             }
 
             setTimeout(() => {
@@ -403,6 +512,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusEl.className = 'text-xs text-gray-700 font-mono mt-1 truncate px-1';
                 }
 
+                if (detailStatusEl) detailStatusEl.innerText = 'Completed';
+                if (detailDotEl) detailDotEl.className = 'w-2 h-2 rounded-full bg-black flex-shrink-0';
+                if (detailBodyEl) {
+                    detailBodyEl.innerHTML = renderAgentOutput(outputData);
+                    if (typeof gsap !== 'undefined') {
+                        gsap.fromTo(detailBodyEl, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+                    }
+                }
+
+                completedAgentCount++;
+                updateProgressIndicator(completedAgentCount);
+
                 resolve();
             }, 400);
         });
@@ -410,8 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reset Agents Function
     function resetAgents() {
-        ['ingestion', 'matcher', 'diagnosis', 'severity', 'resolution', 'escalation', 'learning'].forEach((step, idx) => {
-            const el = document.getElementById(`step-${step}`);
+        completedAgentCount = 0;
+        updateProgressIndicator(0);
+
+        AGENT_PIPELINE.forEach((agent, idx) => {
+            const el = document.getElementById(`step-${agent.id}`);
             const statusEl = document.getElementById(`agent-${idx+1}-status`) || (el ? el.querySelector('.agent-status') : null);
             const circleEl = el ? el.querySelector('.node-circle') : null;
 
@@ -427,6 +551,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusEl.innerText = 'Waiting...';
                 statusEl.className = 'text-xs text-gray-500 font-mono mt-1 truncate px-1';
             }
+
+            const detailStatusEl = document.getElementById(`detail-status-${agent.id}`);
+            const detailDotEl = document.getElementById(`detail-dot-${agent.id}`);
+            const detailBodyEl = document.getElementById(`detail-body-${agent.id}`);
+            if (detailStatusEl) detailStatusEl.innerText = 'Waiting...';
+            if (detailDotEl) detailDotEl.className = 'w-2 h-2 rounded-full bg-gray-300 flex-shrink-0';
+            if (detailBodyEl) detailBodyEl.innerHTML = '<span class="text-gray-400 italic">No output yet — run an analysis to populate this card.</span>';
         });
     }
 
@@ -525,7 +656,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     matchContainer.appendChild(div);
                     
-                    if (idx === 0) currentIncidentId = m.id;
+                    if (idx === 0) {
+                        currentIncidentId = m.id;
+                        currentMatchConfidence = m.similarity;
+                    }
                 });
                 
                 const feedbackControls = document.getElementById('feedback-controls');
@@ -559,19 +693,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch('/api/feedback', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ incident_id: currentIncidentId, feedback: vote })
+                    body: JSON.stringify({ incident_id: currentIncidentId, feedback: vote, match_confidence: currentMatchConfidence })
                 });
                 const data = await res.json();
-                
+
                 setTimeout(() => {
                     if (learningStatus) {
-                        learningStatus.innerHTML = `<span class="text-black font-semibold text-xs">${data.message}</span>`;
-                        
+                        const curation = data.knowledge_curation_suggestion;
+                        const curationNote = curation
+                            ? ` <span class="text-gray-500">— KB draft suggested: "${curation.suggested_title}"</span>`
+                            : '';
+                        learningStatus.innerHTML = `<span class="text-black font-semibold text-xs">${data.message}</span>${curationNote}`;
+
                         setTimeout(() => {
                             learningStatus.classList.add('hidden');
                             learningStatus.classList.remove('flex');
                             learningStatus.innerHTML = `<span>Learning Agent: Updating match priority weights...</span>`;
                         }, 4000);
+                    }
+
+                    // Reflect the real feedback outcome in the Learning / Knowledge Curation detail cards
+                    const learningBody = document.getElementById('detail-body-learning');
+                    if (learningBody) learningBody.innerHTML = renderAgentOutput({ status: data.status, message: data.message });
+
+                    const curationBody = document.getElementById('detail-body-curation');
+                    if (curationBody) {
+                        curationBody.innerHTML = data.knowledge_curation_suggestion
+                            ? renderAgentOutput(data.knowledge_curation_suggestion)
+                            : '<span class="text-gray-400 italic">No KB entry suggested for this feedback.</span>';
                     }
                 }, 600);
                 

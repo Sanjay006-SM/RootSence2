@@ -1,8 +1,8 @@
 """
 Ollama-backed LLM client for diagnosis prose rewriting.
 
-Calls a locally-running Ollama instance (http://localhost:11434) with the
-Mistral model.  If Ollama is not running or any error occurs, the function
+Calls a locally-running Ollama instance (http://localhost:11434) with a
+Llama 3 model.  If Ollama is not running or any error occurs, the function
 silently returns None so callers fall back to the template synthesis.
 
 No API keys or external services required — fully offline.
@@ -13,7 +13,7 @@ from typing import Optional
 import requests
 
 OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_MODEL = "mistral"
+OLLAMA_MODEL = "llama3"
 
 _PROMPT_TEMPLATE = (
     "You are a site reliability engineer writing a concise incident diagnosis "
@@ -27,7 +27,7 @@ _PROMPT_TEMPLATE = (
 
 def rewrite_root_cause(root_cause: str) -> Optional[str]:
     """
-    Call Ollama (Mistral) to rewrite root_cause into better prose.
+    Call Ollama (Llama 3) to rewrite root_cause into better prose.
     Returns the rewritten string on success, or None on any failure
     (Ollama not running, network error, timeout, bad response).
     Callers should fall back to the template synthesis if None is returned.

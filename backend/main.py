@@ -12,7 +12,11 @@ from backend.agents import (
     SeverityAgent,
     ResolutionAgent,
     EscalationAgent,
-    LearningAgent
+    LearningAgent,
+    CorrelationAgent,
+    DiagnosisVerificationAgent,
+    ImpactBlastRadiusAgent,
+    KnowledgeCurationAgent
 )
 from backend.kb import kb
 
@@ -27,31 +31,44 @@ severity_agent = SeverityAgent()
 resolution_agent = ResolutionAgent()
 escalation_agent = EscalationAgent()
 learning_agent = LearningAgent()
+correlation_agent = CorrelationAgent()
+diagnosis_verification_agent = DiagnosisVerificationAgent()
+impact_agent = ImpactBlastRadiusAgent()
+knowledge_curation_agent = KnowledgeCurationAgent()
 
 def run_analysis_pipeline(raw_text: str) -> Dict[str, Any]:
     """Shared pipeline execution used by standard UI endpoint and webhook integrations."""
     ingestion_result = ingestion_agent.process(raw_text)
+    service = ingestion_result.get("extracted_service", "unknown-service")
+
+    correlation_result = correlation_agent.process(service, raw_text)
+
     matcher_result = matcher_agent.process(ingestion_result)
     diagnosis_result = diagnosis_agent.process(matcher_result)
-    
+    verification_result = diagnosis_verification_agent.process(matcher_result, diagnosis_result)
+    impact_result = impact_agent.process(service)
+
     severity_result = severity_agent.process(
-        service=ingestion_result.get("extracted_service", "unknown-service"),
+        service=service,
         diagnosis_confidence=diagnosis_result.get("confidence", "low"),
         raw_error_text=raw_text
     )
-    
+
     resolution_result = resolution_agent.process(matcher_result, diagnosis_result)
-    
+
     escalation_result = escalation_agent.process(
-        service=ingestion_result.get("extracted_service", "unknown-service"),
+        service=service,
         severity_data=severity_result,
         diagnosis_summary=diagnosis_result.get("root_cause_synthesis", "")
     )
-    
+
     return {
         "ingestion": ingestion_result,
+        "correlation": correlation_result,
         "matcher": matcher_result,
         "diagnosis": diagnosis_result,
+        "verification": verification_result,
+        "impact": impact_result,
         "severity": severity_result,
         "resolution": resolution_result,
         "escalation": escalation_result
@@ -63,6 +80,7 @@ class AnalyzeRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     incident_id: str
     feedback: str # "up" or "down"
+    match_confidence: Optional[float] = None  # optional: enables Knowledge Curation Agent suggestion
 
 class GenericWebhookRequest(BaseModel):
     text: str
@@ -144,6 +162,17 @@ async def submit_feedback(req: FeedbackRequest):
     result = learning_agent.process(req.incident_id, req.feedback)
     if result["status"] == "not_found":
         raise HTTPException(status_code=404, detail="Incident not found in KB")
+
+    # Knowledge Curation Agent: draft-only suggestion, never writes to the KB automatically
+    matched_incident = next((inc for inc in kb.get_all_incidents() if inc.get("id") == req.incident_id), None)
+    curation_suggestion = knowledge_curation_agent.process(
+        feedback=req.feedback,
+        match_confidence=req.match_confidence,
+        incident_context=matched_incident or {}
+    )
+    if curation_suggestion:
+        result["knowledge_curation_suggestion"] = curation_suggestion
+
     return result
 
 @app.get("/api/stats")

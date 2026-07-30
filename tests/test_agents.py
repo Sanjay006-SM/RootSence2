@@ -341,7 +341,7 @@ def test_diagnosis_with_ollama_mocked():
 @pytest.mark.skipif(not _is_ollama_running(), reason="Ollama is not running on localhost:11434")
 def test_diagnosis_with_ollama_available():
     """
-    Live integration test — requires Ollama running with 'mistral' model.
+    Live integration test — requires Ollama running with the 'llama3' model.
     Verifies that DiagnosisAgent actually calls Ollama and gets a rewritten
     diagnosis (synthesis_source='ollama').
     """

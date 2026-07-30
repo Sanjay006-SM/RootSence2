@@ -40,15 +40,15 @@
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-sm">R</div>
                     <span class="font-bold text-black text-lg">RootSense</span>
-                    <span class="text-xs font-mono text-gray-500 border border-gray-300 px-2 py-0.5 rounded font-semibold">CONSOLE</span>
+                    <span class="text-xs font-mono text-black border border-[#4fe3ff] bg-[#4fe3ff]/10 px-2.5 py-0.5 rounded-full font-semibold">CONSOLE</span>
                 </div>
-                
-                <!-- Nav: Black text, no colors -->
-                <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
-                    <a href="index.html" class="text-gray-600 hover:text-black transition">Home</a>
-                    <a href="index.html#how-it-works" class="text-gray-600 hover:text-black transition">Architecture</a>
-                    <a href="https://github.com" target="_blank" class="text-gray-600 hover:text-black transition">GitHub</a>
-                    <a href="index.html" class="text-gray-600 hover:text-black transition text-sm font-semibold">← Back to Home</a>
+
+                <!-- Nav: pill links, mint accent on hover -->
+                <nav class="hidden md:flex items-center gap-2 text-sm font-medium">
+                    <a href="index.html" class="px-4 py-1.5 rounded-full text-gray-600 hover:text-black hover:bg-[#4fe3ff]/10 transition">Home</a>
+                    <a href="index.html#how-it-works" class="px-4 py-1.5 rounded-full text-gray-600 hover:text-black hover:bg-[#4fe3ff]/10 transition">Architecture</a>
+                    <a href="https://github.com" target="_blank" class="px-4 py-1.5 rounded-full text-gray-600 hover:text-black hover:bg-[#4fe3ff]/10 transition">GitHub</a>
+                    <a href="index.html" class="px-4 py-1.5 rounded-full bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition">← Back to Home</a>
                 </nav>
 
                 <button id="mobile-menu-toggle" class="md:hidden p-2 rounded-lg border border-gray-200 text-gray-600 hover:text-black">
@@ -87,11 +87,14 @@
                 <h2 class="text-2xl font-bold text-black">
                     Multi-Agent Analysis Pipeline
                 </h2>
+                <p id="pipelineProgressText" class="text-xs font-mono text-gray-500 mt-3 tracking-wide">
+                    Completed Agents: 0 / 11
+                </p>
             </div>
-            
-            <!-- Horizontal pipeline: Black & White structure (7 Agents) -->
+
+            <!-- Horizontal pipeline: Black & White structure (11 Agents) -->
             <div class="bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
-                <div class="flex items-center justify-between gap-2 min-w-[700px]" id="pipeline-container">
+                <div class="flex items-center justify-between gap-2 min-w-[1100px]" id="pipeline-container">
                     <!-- Agent 1 -->
                     <div class="flex-1 text-center agent-node-wrapper" id="step-ingestion">
                         <div class="node-circle-container relative mx-auto mb-2">
@@ -102,74 +105,74 @@
                         <p class="font-semibold text-black text-xs">Ingestion</p>
                         <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-1-status">Waiting...</p>
                     </div>
-                    
+
                     <!-- Arrow -->
                     <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-1"></div>
-                    
+
                     <!-- Agent 2 -->
-                    <div class="flex-1 text-center agent-node-wrapper" id="step-matcher">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-correlation">
                         <div class="node-circle-container relative mx-auto mb-2">
                             <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 2
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-xs">Matcher</p>
+                        <p class="font-semibold text-black text-xs">Correlation</p>
                         <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-2-status">Waiting...</p>
                     </div>
-                    
+
                     <!-- Arrow -->
                     <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-2"></div>
-                    
+
                     <!-- Agent 3 -->
-                    <div class="flex-1 text-center agent-node-wrapper" id="step-diagnosis">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-matcher">
                         <div class="node-circle-container relative mx-auto mb-2">
                             <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 3
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-xs">Diagnosis</p>
+                        <p class="font-semibold text-black text-xs">Matcher</p>
                         <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-3-status">Waiting...</p>
                     </div>
-                    
+
                     <!-- Arrow -->
                     <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-3"></div>
-                    
+
                     <!-- Agent 4 -->
-                    <div class="flex-1 text-center agent-node-wrapper" id="step-severity">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-diagnosis">
                         <div class="node-circle-container relative mx-auto mb-2">
                             <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 4
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-xs">Severity</p>
+                        <p class="font-semibold text-black text-xs">Diagnosis</p>
                         <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-4-status">Waiting...</p>
                     </div>
-                    
+
                     <!-- Arrow -->
                     <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-4"></div>
-                    
+
                     <!-- Agent 5 -->
-                    <div class="flex-1 text-center agent-node-wrapper" id="step-resolution">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-verification">
                         <div class="node-circle-container relative mx-auto mb-2">
                             <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 5
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-xs">Resolution</p>
+                        <p class="font-semibold text-black text-xs">Verification</p>
                         <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-5-status">Waiting...</p>
                     </div>
 
                     <!-- Arrow -->
                     <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-5"></div>
-                    
+
                     <!-- Agent 6 -->
-                    <div class="flex-1 text-center agent-node-wrapper" id="step-escalation">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-impact">
                         <div class="node-circle-container relative mx-auto mb-2">
                             <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 6
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-xs">Escalation</p>
+                        <p class="font-semibold text-black text-xs">Impact</p>
                         <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-6-status">Waiting...</p>
                     </div>
 
@@ -177,16 +180,82 @@
                     <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-6"></div>
 
                     <!-- Agent 7 -->
-                    <div class="flex-1 text-center agent-node-wrapper" id="step-learning">
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-severity">
                         <div class="node-circle-container relative mx-auto mb-2">
                             <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
                                 7
                             </div>
                         </div>
-                        <p class="font-semibold text-black text-xs">Learning</p>
+                        <p class="font-semibold text-black text-xs">Severity</p>
                         <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-7-status">Waiting...</p>
                     </div>
+
+                    <!-- Arrow -->
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-7"></div>
+
+                    <!-- Agent 8 -->
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-resolution">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
+                                8
+                            </div>
+                        </div>
+                        <p class="font-semibold text-black text-xs">Resolution</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-8-status">Waiting...</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-8"></div>
+
+                    <!-- Agent 9 -->
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-escalation">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
+                                9
+                            </div>
+                        </div>
+                        <p class="font-semibold text-black text-xs">Escalation</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-9-status">Waiting...</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-9"></div>
+
+                    <!-- Agent 10 -->
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-learning">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
+                                10
+                            </div>
+                        </div>
+                        <p class="font-semibold text-black text-xs">Learning</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-10-status">Waiting...</p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="flex-shrink-0 w-6 h-0.5 bg-gray-300 mb-5 arrow-connector" id="arrow-10"></div>
+
+                    <!-- Agent 11 -->
+                    <div class="flex-1 text-center agent-node-wrapper" id="step-curation">
+                        <div class="node-circle-container relative mx-auto mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center mx-auto font-bold text-xs text-gray-900 node-circle">
+                                11
+                            </div>
+                        </div>
+                        <p class="font-semibold text-black text-xs">Curation</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5 font-mono agent-status truncate px-1" id="agent-11-status">Waiting...</p>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Per-Agent Execution Detail Cards (expandable) -->
+            <div class="bg-white border border-gray-200 rounded-lg mt-6 divide-y divide-gray-100" id="agentDetailsPanel">
+                <div class="px-6 py-4">
+                    <h3 class="text-sm font-bold text-black uppercase tracking-wide">Agent Execution Details</h3>
+                    <p class="text-xs text-gray-500 mt-1">Expand any agent below to inspect its raw output for this run.</p>
+                </div>
+                <!-- Detail cards are generated once via JS to stay in sync with the pipeline order above -->
+                <div id="agentDetailsList"></div>
             </div>
         </section>
 
@@ -256,9 +325,9 @@
                                   class="w-full min-h-44 p-4 border border-gray-300 rounded-lg bg-white text-black font-mono text-xs placeholder-gray-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition"
                                   placeholder="Paste raw error log, stack trace, or drag & drop a .txt file here..."></textarea>
                         
-                        <!-- Button: Black, not blue -->
-                        <button id="analyzeBtn" 
-                                class="mt-6 w-full px-6 py-3.5 bg-black hover:bg-gray-900 text-white font-bold rounded-lg transition flex items-center justify-center gap-2">
+                        <!-- Button: mint-accented pill CTA, matching site-wide theme -->
+                        <button id="analyzeBtn"
+                                class="mt-6 w-full px-6 py-3.5 bg-[#4fe3ff] hover:bg-[#2fd3f0] text-black font-bold rounded-full transition flex items-center justify-center gap-2 shadow-[0_0_20px_-4px_rgba(79,227,255,0.5)]">
                             <span>Analyze Incident</span>
                         </button>
                     </div>

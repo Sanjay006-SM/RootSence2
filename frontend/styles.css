@@ -29,9 +29,15 @@ section {
 
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #ffffff;
+    background: linear-gradient(to bottom, #f4f4f5 0%, #f4f4f5 40%, #ececee 70%, #e2e3e7 100%);
+    background-attachment: fixed;
     color: #000000;
     letter-spacing: -0.02em;
+}
+
+:root {
+    --mint-accent: #4fe3ff;
+    --mint-accent-dark: #2fd3f0;
 }
 
 textarea {
@@ -186,12 +192,12 @@ textarea:focus-visible {
     outline-offset: 2px;
 }
 
-/* ── Preset Sample Action Buttons ── */
+/* ── Preset Sample Action Buttons (pill-shaped, mint accent) ── */
 .sample-btn {
-    padding: 0.4rem 0.9rem;
+    padding: 0.4rem 1rem;
     font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 0.5rem;
+    font-weight: 600;
+    border-radius: 9999px;
     background-color: #ffffff;
     color: #000000;
     border: 1px solid #e5e7eb;
@@ -199,14 +205,14 @@ textarea:focus-visible {
     cursor: pointer;
 }
 .sample-btn:hover {
-    background-color: #E5E7EB;
-    border-color: #000000;
+    background-color: rgba(79, 227, 255, 0.12);
+    border-color: var(--mint-accent);
 }
 .sample-btn:active {
     transform: scale(0.98);
 }
 .sample-btn.ring-2 {
-    box-shadow: 0 0 0 2px #000000;
+    box-shadow: 0 0 0 2px var(--mint-accent);
 }
 .sample-btn.active {
     background-color: #000000;
@@ -217,8 +223,8 @@ textarea:focus-visible {
 /* Textarea focus state */
 #incidentInput:focus, #incident-input:focus {
     outline: none;
-    border-color: #000000;
-    box-shadow: 0 0 0 1px #000000;
+    border-color: var(--mint-accent);
+    box-shadow: 0 0 0 1px var(--mint-accent), 0 0 16px -4px rgba(79, 227, 255, 0.5);
 }
 
 /* ── Interactive Agent Nodes (Console Dashboard) ── */
@@ -255,20 +261,21 @@ textarea:focus-visible {
 }
 
 .agent-node-wrapper.active .node-circle {
-    border-color: #000000;
+    border-color: var(--mint-accent);
     background-color: #000000;
-    color: #ffffff;
+    color: var(--mint-accent);
+    box-shadow: 0 0 16px -2px rgba(79, 227, 255, 0.6);
 }
 
 .agent-node-wrapper.active .node-number {
-    background-color: #2563eb;
-    color: #ffffff;
+    background-color: var(--mint-accent-dark);
+    color: #000000;
 }
 
 .agent-node-wrapper.done .node-circle {
-    border-color: #16a34a;
-    background-color: #f0fdf4;
-    color: #16a34a;
+    border-color: var(--mint-accent);
+    background-color: rgba(79, 227, 255, 0.08);
+    color: var(--mint-accent-dark);
 }
 
 /* ── Premium Apple/Linear-Grade Infinity AI Intelligence Visualization ── */
