@@ -3,7 +3,7 @@ import SignalTrace from './SignalTrace';
 
 export default function HeroSection() {
   return (
-    <section className="w-full min-h-[85vh] flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 pb-8 relative overflow-hidden">
+    <section className="w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-28 pb-4 relative overflow-hidden">
       {/* On-brand Signal Trace telemetry background element (positioned behind glass card) */}
       <SignalTrace />
 

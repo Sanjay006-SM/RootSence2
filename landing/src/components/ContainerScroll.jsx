@@ -5,7 +5,7 @@ export function ContainerScroll({ titleComponent, children }) {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start 0.85', 'end start'],
+    offset: ['start 0.95', 'end start'],
   });
 
   const [isMobile, setIsMobile] = useState(false);
@@ -20,28 +20,31 @@ export function ContainerScroll({ titleComponent, children }) {
   }, []);
 
   const scaleDimensions = () => {
-    return isMobile ? [0.85, 0.96] : [1.03, 1];
+    return isMobile ? [0.88, 0.98] : [1.02, 1];
   };
 
-  const rotate = useTransform(scrollYProgress, [0, 0.4], [14, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.4], scaleDimensions());
-  const translate = useTransform(scrollYProgress, [0, 0.4], [35, -15]);
+  const rotate = useTransform(scrollYProgress, [0, 0.35], [12, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.35], scaleDimensions());
+  const translate = useTransform(scrollYProgress, [0, 0.35], [20, 0]);
 
   return (
     <section
       ref={containerRef}
-      className="h-[38rem] md:h-[52rem] flex items-center justify-center relative p-2 md:p-6 overflow-hidden bg-white z-10 pt-4 pb-12"
+      className="flex flex-col items-center justify-center relative p-2 md:p-6 overflow-hidden bg-white z-10 pt-2 pb-16"
     >
       <div
-        className="py-2 md:py-6 w-full relative max-w-6xl mx-auto"
+        className="w-full relative max-w-6xl mx-auto flex flex-col items-center"
         style={{
           perspective: '1000px',
         }}
       >
-        <Header translate={translate} titleComponent={titleComponent} />
+        {/* 1. 3D Dashboard Image Card directly below Hero Card */}
         <Card rotate={rotate} translate={translate} scale={scale}>
           {children}
         </Card>
+
+        {/* 2. Headline text placed BELOW the 3D Dashboard Image Card */}
+        <Header translate={translate} titleComponent={titleComponent} />
       </div>
     </section>
   );
@@ -53,7 +56,7 @@ function Header({ translate, titleComponent }) {
       style={{
         translateY: translate,
       }}
-      className="max-w-5xl mx-auto text-center mb-6 md:mb-10"
+      className="max-w-5xl mx-auto text-center mt-10 md:mt-14"
     >
       {titleComponent}
     </motion.div>
@@ -69,7 +72,7 @@ function Card({ rotate, scale, children }) {
         boxShadow:
           '0 0 #00000010, 0 9px 20px #0000001b, 0 37px 37px #00000018, 0 84px 50px #00000010, 0 149px 60px #00000005',
       }}
-      className="max-w-5xl -mt-4 md:-mt-8 mx-auto h-[22rem] sm:h-[28rem] md:h-[36rem] w-full border-4 border-neutral-800 p-2 md:p-3 bg-neutral-900 rounded-[28px] shadow-2xl"
+      className="max-w-5xl mx-auto h-[22rem] sm:h-[28rem] md:h-[36rem] w-full border-4 border-neutral-800 p-2 md:p-3 bg-neutral-900 rounded-[28px] shadow-2xl"
     >
       <div className="h-full w-full overflow-hidden rounded-2xl bg-neutral-50 p-1 md:p-2">
         {children}
