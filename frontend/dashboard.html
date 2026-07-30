@@ -200,37 +200,61 @@
                     <div class="bg-white border border-gray-200 rounded-lg p-8">
                         <h3 class="text-lg font-bold text-black mb-4">Incident Input</h3>
                         
-                        <!-- Sample buttons: Minimal Gray -->
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
-                                    data-type="db"
-                                    data-text="Database Connection Pool Exhaustion&#10;&#10;org.postgresql.util.PSQLException: FATAL: sorry, too many clients already remaining connection slots are reserved for non-replication superuser connections. Connection pool exhausted at payments-api, timeout acquiring connection from HikariCP pool during peak checkout traffic.">
-                                DB Deadlock
-                            </button>
-                            
-                            <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
-                                    data-type="network"
-                                    data-text="TimeoutError: Redis connection to redis-cluster.internal:6379 timed out after 3000ms. GET session:9842a2 in auth-service failed to complete handshake within timeout window.">
-                                Redis Timeout
-                            </button>
-                            
-                            <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
-                                    data-type="oom"
-                                    data-text="OOMKilled: Kubernetes pod evicted due to memory limit exceeded. Image processor pod exceeded 2GB memory threshold while resizing batch of 500k image files without pagination in payment-processor.">
-                                OOMKilled
-                            </button>
-                            
-                            <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
-                                    data-type="nonsense"
-                                    data-text="flux capacitor temporal anomaly in the warp drive mechanism">
-                                Nonsense Error
+                        <!-- Sample buttons & File Upload Control -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div class="flex flex-wrap gap-2">
+                                <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
+                                        data-type="db"
+                                        data-text="Database Connection Pool Exhaustion&#10;&#10;org.postgresql.util.PSQLException: FATAL: sorry, too many clients already remaining connection slots are reserved for non-replication superuser connections. Connection pool exhausted at payments-api, timeout acquiring connection from HikariCP pool during peak checkout traffic.">
+                                    DB Deadlock
+                                </button>
+                                
+                                <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
+                                        data-type="network"
+                                        data-text="TimeoutError: Redis connection to redis-cluster.internal:6379 timed out after 3000ms. GET session:9842a2 in auth-service failed to complete handshake within timeout window.">
+                                    Redis Timeout
+                                </button>
+                                
+                                <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
+                                        data-type="oom"
+                                        data-text="OOMKilled: Kubernetes pod evicted due to memory limit exceeded. Image processor pod exceeded 2GB memory threshold while resizing batch of 500k image files without pagination in payment-processor.">
+                                    OOMKilled
+                                </button>
+                                
+                                <button class="sample-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black text-sm font-medium rounded border border-gray-300 transition" 
+                                        data-type="nonsense"
+                                        data-text="flux capacitor temporal anomaly in the warp drive mechanism">
+                                    Nonsense Error
+                                </button>
+                            </div>
+
+                            <!-- Upload Log File (.txt) Button -->
+                            <div class="flex items-center gap-2">
+                                <input type="file" id="logFileInput" accept=".txt,text/plain" class="hidden" />
+                                <button id="uploadFileBtn" type="button" 
+                                        class="px-3.5 py-2 bg-white hover:bg-gray-100 text-black text-xs font-semibold rounded border border-gray-300 transition flex items-center gap-1.5 shadow-sm">
+                                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                                    <span>Upload log file (.txt)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Uploaded File Status Indicator -->
+                        <div id="fileUploadStatus" class="hidden mb-4 text-xs font-mono text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <i data-lucide="file-text" class="w-4 h-4 text-black flex-shrink-0"></i>
+                                <span id="uploadedFileName" class="truncate font-semibold text-black"></span>
+                                <span id="uploadedFileSize" class="text-gray-500 text-[11px]"></span>
+                            </div>
+                            <button id="clearFileBtn" type="button" class="text-gray-400 hover:text-black transition p-1">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                         
                         <!-- Textarea -->
                         <textarea id="incidentInput" 
                                   class="w-full min-h-44 p-4 border border-gray-300 rounded-lg bg-white text-black font-mono text-xs placeholder-gray-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition"
-                                  placeholder="Paste raw error log, stack trace, or webhook alert..."></textarea>
+                                  placeholder="Paste raw error log, stack trace, or drag & drop a .txt file here..."></textarea>
                         
                         <!-- Button: Black, not blue -->
                         <button id="analyzeBtn" 

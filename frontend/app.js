@@ -125,6 +125,126 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initSampleButtons();
 
+    // ── Client-side Log File Upload (.txt only) ──
+    function initFileUploadHandler() {
+        const uploadBtn = document.getElementById('uploadFileBtn');
+        const fileInput = document.getElementById('logFileInput');
+        const incidentInput = getEl('incidentInput', 'incident-input');
+        const statusBanner = document.getElementById('fileUploadStatus');
+        const fileNameEl = document.getElementById('uploadedFileName');
+        const fileSizeEl = document.getElementById('uploadedFileSize');
+        const clearBtn = document.getElementById('clearFileBtn');
+        const analyzeBtn = getEl('analyzeBtn', 'analyze-btn');
+
+        if (!uploadBtn || !fileInput || !incidentInput) return;
+
+        // Trigger file select dialog
+        uploadBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            fileInput.click();
+        });
+
+        // File select change handler
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                processSelectedFile(file);
+            }
+        });
+
+        // Clear uploaded file indicator
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (statusBanner) statusBanner.classList.add('hidden');
+                fileInput.value = '';
+            });
+        }
+
+        // Drag and Drop on Textarea
+        ['dragenter', 'dragover'].forEach(eventName => {
+            incidentInput.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                incidentInput.classList.add('border-black', 'bg-gray-50');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            incidentInput.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                incidentInput.classList.remove('border-black', 'bg-gray-50');
+            });
+        });
+
+        incidentInput.addEventListener('drop', (e) => {
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                processSelectedFile(file);
+            }
+        });
+
+        function processSelectedFile(file) {
+            // 1. File Type Check (.txt only)
+            const fileName = file.name.toLowerCase();
+            const isTxtExt = fileName.endsWith('.txt');
+            const isTxtType = file.type === 'text/plain' || file.type === '';
+
+            if (!isTxtExt && !isTxtType) {
+                showToast(`Invalid file format "${file.name}" — only .txt log files are supported.`, 'warning');
+                return;
+            }
+
+            // 2. Size Limit Check (Max 1MB)
+            const MAX_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
+            if (file.size > MAX_SIZE_BYTES) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                showToast(`File too large (${sizeMB}MB) — please upload a log under 1MB.`, 'warning');
+                return;
+            }
+
+            // 3. Read File Contents
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const textContent = e.target.result;
+
+                // Empty file check
+                if (!textContent || !textContent.trim()) {
+                    showToast(`File "${file.name}" is empty or contains whitespace only.`, 'warning');
+                    return;
+                }
+
+                // Populate textarea (overwrite existing text)
+                incidentInput.value = textContent;
+                incidentInput.classList.remove('input-error');
+
+                // Display file confirmation indicator
+                if (fileNameEl) fileNameEl.innerText = `Loaded: ${file.name}`;
+                if (fileSizeEl) fileSizeEl.innerText = `(${(file.size / 1024).toFixed(1)} KB)`;
+                if (statusBanner) statusBanner.classList.remove('hidden');
+
+                // Deselect preset sample buttons
+                document.querySelectorAll('.sample-btn').forEach(b => b.classList.remove('active', 'ring-2'));
+
+                showToast(`Loaded log file "${file.name}"`, 'success');
+
+                // Focus analyze button and scroll into view
+                if (analyzeBtn) {
+                    analyzeBtn.focus();
+                    analyzeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
+
+            reader.onerror = () => {
+                showToast(`Failed to read file "${file.name}".`, 'error');
+            };
+
+            reader.readAsText(file);
+        }
+    }
+
+    initFileUploadHandler();
+
     // Fetch Dynamic Metrics for Landing Page & Dashboard
     async function loadStats() {
         try {
