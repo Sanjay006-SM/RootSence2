@@ -1,4 +1,3 @@
-import BackgroundPaths from './components/BackgroundPaths';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import AgentsSection from './components/AgentsSection';
@@ -20,7 +19,6 @@ export default function App() {
       </main>
 
       <Footer />
-      <BackgroundPaths />
     </div>
   );
 }
