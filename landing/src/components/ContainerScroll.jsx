@@ -5,7 +5,7 @@ export function ContainerScroll({ titleComponent, children }) {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start end', 'end start'],
+    offset: ['start 0.85', 'end start'],
   });
 
   const [isMobile, setIsMobile] = useState(false);
@@ -20,20 +20,20 @@ export function ContainerScroll({ titleComponent, children }) {
   }, []);
 
   const scaleDimensions = () => {
-    return isMobile ? [0.8, 0.95] : [1.04, 1];
+    return isMobile ? [0.85, 0.96] : [1.03, 1];
   };
 
-  const rotate = useTransform(scrollYProgress, [0, 0.45], [16, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.45], scaleDimensions());
-  const translate = useTransform(scrollYProgress, [0, 0.45], [60, -40]);
+  const rotate = useTransform(scrollYProgress, [0, 0.4], [14, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.4], scaleDimensions());
+  const translate = useTransform(scrollYProgress, [0, 0.4], [35, -15]);
 
   return (
     <section
       ref={containerRef}
-      className="h-[45rem] md:h-[62rem] flex items-center justify-center relative p-2 md:p-12 overflow-hidden bg-white z-10"
+      className="h-[38rem] md:h-[52rem] flex items-center justify-center relative p-2 md:p-6 overflow-hidden bg-white z-10 pt-4 pb-12"
     >
       <div
-        className="py-6 md:py-16 w-full relative max-w-6xl mx-auto"
+        className="py-2 md:py-6 w-full relative max-w-6xl mx-auto"
         style={{
           perspective: '1000px',
         }}
@@ -53,7 +53,7 @@ function Header({ translate, titleComponent }) {
       style={{
         translateY: translate,
       }}
-      className="max-w-5xl mx-auto text-center mb-8 md:mb-12"
+      className="max-w-5xl mx-auto text-center mb-6 md:mb-10"
     >
       {titleComponent}
     </motion.div>
@@ -69,7 +69,7 @@ function Card({ rotate, scale, children }) {
         boxShadow:
           '0 0 #00000010, 0 9px 20px #0000001b, 0 37px 37px #00000018, 0 84px 50px #00000010, 0 149px 60px #00000005',
       }}
-      className="max-w-5xl -mt-6 md:-mt-10 mx-auto h-[24rem] sm:h-[32rem] md:h-[42rem] w-full border-4 border-neutral-800 p-2 md:p-4 bg-neutral-900 rounded-[28px] shadow-2xl"
+      className="max-w-5xl -mt-4 md:-mt-8 mx-auto h-[22rem] sm:h-[28rem] md:h-[36rem] w-full border-4 border-neutral-800 p-2 md:p-3 bg-neutral-900 rounded-[28px] shadow-2xl"
     >
       <div className="h-full w-full overflow-hidden rounded-2xl bg-neutral-50 p-1 md:p-2">
         {children}
