@@ -1,3 +1,6 @@
+import React from 'react';
+import ParallaxLayer from './ParallaxLayer';
+
 const TECH_STACK = [
   { icon: '🐍', title: 'Python 3.13', subtitle: 'FastAPI Backend' },
   { icon: '🦙', title: 'Ollama', subtitle: 'Mistral 7B' },
@@ -16,16 +19,21 @@ export default function TechStackSection() {
           Modern Technology Stack
         </h2>
 
-        {/* Minimal tech grid */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-3 gap-12 md:gap-16">
-          {TECH_STACK.map((item) => (
-            <div key={item.title}>
-              <p className="text-3xl font-bold mb-3">{item.icon}</p>
-              <h4 className="font-semibold text-black mb-2 text-lg">{item.title}</h4>
-              <p className="text-gray-600 text-sm font-light">{item.subtitle}</p>
-            </div>
-          ))}
-        </div>
+        {/* Minimal tech grid wrapped in subtle speed=0.96 ParallaxLayer */}
+        <ParallaxLayer speed={0.96}>
+          <div className="mt-20 grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 md:gap-16">
+            {TECH_STACK.map((item) => (
+              <div
+                key={item.title}
+                className="p-6 rounded-2xl bg-neutral-50 border border-neutral-200/60 transition-transform duration-200 hover:-translate-y-1"
+              >
+                <p className="text-3xl font-bold mb-3">{item.icon}</p>
+                <h4 className="font-semibold text-black mb-2 text-lg">{item.title}</h4>
+                <p className="text-gray-600 text-sm font-light">{item.subtitle}</p>
+              </div>
+            ))}
+          </div>
+        </ParallaxLayer>
       </div>
     </section>
   );
